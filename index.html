@@ -3,428 +3,956 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#060608">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JobRadar">
 <link rel="manifest" href="manifest.json">
 <title>JobRadar</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#0A0A0A;--s1:#141414;--s2:#1C1C1C;--s3:#252525;--s4:#2E2E2E;--bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.12);--bd3:rgba(255,255,255,0.18);--tx:#F5F2EE;--mu:#5A5A5A;--mu2:#888;--ac:#FF4D1C;--gn:#22C55E;--gn2:rgba(34,197,94,.15);--yw:#F59E0B;--yw2:rgba(245,158,11,.15);--bl:#3B82F6;--rd:#EF4444;--rd2:rgba(239,68,68,.12);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif}
-#app{display:flex;flex-direction:column;height:100%}
-header{padding:calc(var(--st)+12px) 14px 10px;background:var(--bg);border-bottom:0.5px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
-.logo{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.03em;flex-shrink:0}.logo span{color:var(--ac)}
-.transport-toggle{display:flex;background:var(--s2);border-radius:20px;padding:3px;border:0.5px solid var(--bd2);flex-shrink:0}
-.tt-btn{padding:5px 10px;border-radius:17px;border:none;background:transparent;color:var(--mu2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
-.tt-btn.on{background:var(--ac);color:#fff}
-.hdr-r{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.hdr-info .v{font-family:'Syne',sans-serif;font-size:13px;font-weight:700}.hdr-info .l{font-size:10px;color:var(--mu2)}
-.ring{position:relative;width:34px;height:34px;flex-shrink:0;display:none}.ring svg{transform:rotate(-90deg)}
-.rt{fill:none;stroke:var(--s4);stroke-width:3}.rf{fill:none;stroke:var(--ac);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .6s}
-.rp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500}
-nav{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:0.5px solid var(--bd);flex-shrink:0;background:var(--bg);padding-bottom:var(--sb)}
-nav button{background:none;border:none;color:var(--mu2);padding:8px 4px 6px;font-size:10px;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
-.ni{font-size:18px}.tind{height:2px;width:18px;background:transparent;border-radius:1px;transition:background .2s}
-nav button.on{color:var(--ac)}nav button.on .tind{background:var(--ac)}
-.pages{flex:1;overflow:hidden;position:relative}
-.pg{position:absolute;inset:0;overflow-y:auto;padding:12px;display:none;-webkit-overflow-scrolling:touch}.pg.on{display:block}
-#pg-map{padding:0}.pb{height:calc(20px + var(--sb))}
-.sw{position:relative;margin-bottom:9px}
-.sw input{width:100%;background:var(--s1);border:0.5px solid var(--bd2);border-radius:14px;padding:10px 14px 10px 36px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
-.sw input:focus{border-color:var(--ac)}.si{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--mu2)}
-.time-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;background:var(--s1);border-radius:12px;padding:9px 13px;border:0.5px solid var(--bd)}
-.time-row label{font-size:12px;color:var(--mu2);white-space:nowrap}
-.time-row input[type=range]{flex:1;accent-color:var(--ac)}
-.time-val{font-size:13px;font-weight:500;color:var(--ac);white-space:nowrap;min-width:48px;text-align:right}
-.fr{display:flex;gap:5px;margin-bottom:9px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-.fr::-webkit-scrollbar{display:none}
-.fp{padding:5px 11px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;border:0.5px solid var(--bd2);background:transparent;color:var(--mu2);font-family:'DM Sans',sans-serif;flex-shrink:0}
-.fp.on{background:rgba(255,77,28,.12);color:var(--ac);border-color:rgba(255,77,28,.4)}
-.card{background:var(--s1);border-radius:14px;border:0.5px solid var(--bd2);margin-bottom:7px;overflow:hidden}
-.ch{padding:12px 13px;display:flex;align-items:flex-start;gap:9px;cursor:pointer}
-.cb{padding:0 13px 12px;display:none}.cb.open{display:block}
-.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.d-food{background:var(--ac)}.d-retail{background:var(--bl)}.d-logis{background:var(--yw)}.d-livr{background:var(--gn)}.d-autre{background:var(--mu2)}
-.ci{flex:1;min-width:0}.cn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px}
-.ca{font-size:11px;color:var(--mu2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cr{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
-.st{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
-.s-todo{background:var(--s3);color:var(--mu2)}.s-done{background:var(--gn2);color:var(--gn)}.s-relance{background:var(--yw2);color:var(--yw)}.s-nope{background:var(--rd2);color:var(--rd)}
-.tb{font-size:11px;color:var(--mu2)}
-.zbadge{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:9px;font-weight:700;flex-shrink:0}
-.dg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px}
-.dc{background:var(--s2);border-radius:11px;padding:8px 5px;text-align:center}.dc .v{font-size:15px;font-weight:500}.dc .l{font-size:10px;color:var(--mu2);margin-top:1px}
-.dc.am{border:0.5px solid var(--ac)}.vw{color:#FB923C}.vb{color:var(--gn)}.vbus{color:var(--bl)}
-.da{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
-.bgps{background:var(--ac);color:#fff;border:none;border-radius:11px;padding:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
-.bsec{background:var(--s2);color:var(--tx);border:0.5px solid var(--bd2);border-radius:11px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
-.ni2{background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:9px 11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;resize:none;height:52px;width:100%}
-.ni2:focus{border-color:var(--ac)}
-#mapbox{height:100%;width:100%}
-.map-overlay{position:absolute;bottom:calc(10px + var(--sb));left:10px;right:10px;z-index:1000;background:rgba(12,12,12,0.97);border-radius:18px;border:0.5px solid var(--bd3);overflow:hidden;max-height:56vh;display:flex;flex-direction:column}
-.mo-head{padding:12px 14px 9px;border-bottom:0.5px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mo-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;white-space:nowrap}
-.mo-kpis{display:flex;gap:12px;flex-shrink:0}
-.mo-kpi .v{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--ac)}.mo-kpi .l{font-size:9px;color:var(--mu2)}
-.mo-clusters{overflow-y:auto;padding:9px 11px;flex:1;-webkit-overflow-scrolling:touch}
-.mo-clusters::-webkit-scrollbar{display:none}
-.cc{background:var(--s2);border-radius:11px;border:0.5px solid var(--bd2);margin-bottom:6px;overflow:hidden}
-.cc-head{padding:9px 11px;display:flex;align-items:center;gap:7px;cursor:pointer}
-.cc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.cc-info{flex:1;min-width:0}.cc-title{font-size:12px;font-weight:500}.cc-sub{font-size:10px;color:var(--mu2);margin-top:1px}
-.cc-body{display:none;padding:0 11px 9px}.cc-body.open{display:block}
-.cc-stops{display:flex;flex-direction:column;gap:3px;margin-bottom:7px}
-.cc-stop{display:flex;align-items:center;gap:6px;padding:5px 7px;background:var(--s3);border-radius:8px}
-.cc-num{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;background:var(--s4);color:var(--mu2)}
-.cc-num.done{background:var(--gn2);color:var(--gn)}
-.cc-sinfo{flex:1;min-width:0}.cc-sname{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc-smeta{font-size:10px;color:var(--mu2)}
-.btn-launch{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
-.sc{background:var(--s1);border-radius:14px;padding:12px 13px;border:0.5px solid var(--bd)}
-.sc .v{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}.sc .l{font-size:11px;color:var(--mu2);margin-top:2px}
-.sec-lbl{font-size:11px;font-weight:500;color:var(--mu2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-.bi{margin-bottom:8px}.br{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}
-.bt{height:5px;background:var(--s3);border-radius:3px;overflow:hidden}.bf{height:100%;border-radius:3px;transition:width .7s}
-.top-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:0.5px solid var(--bd)}.top-item:last-child{border-bottom:none}
-.top-n{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--ac);width:16px;flex-shrink:0}
-.top-info{flex:1;min-width:0}.top-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top-meta{font-size:11px;color:var(--mu2)}
-.toast{position:fixed;bottom:calc(68px + var(--sb));left:50%;transform:translateX(-50%) translateY(14px);background:var(--s2);color:var(--tx);padding:9px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;border:0.5px solid var(--bd3)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.empty{text-align:center;padding:40px 20px;color:var(--mu2)}.empty .ei{font-size:38px;opacity:.25;margin-bottom:10px}.empty p{font-size:13px;line-height:1.6}
-.leaflet-container{background:var(--bg) !important}
-.leaflet-popup-content-wrapper{background:var(--s1);color:var(--tx);border:0.5px solid var(--bd3);border-radius:14px;box-shadow:none}
-.leaflet-popup-tip{background:var(--s1)}.leaflet-popup-content{margin:10px 13px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5}
-.leaflet-control-zoom a{background:var(--s2) !important;color:var(--tx) !important;border-color:var(--bd3) !important}
-.leaflet-tooltip{background:none;border:none;box-shadow:none;padding:0}
+:root {
+  --bg: #060608;
+  --s1: #0E0E12;
+  --s2: #16161C;
+  --s3: #1E1E26;
+  --s4: #26262F;
+  --bd: rgba(255,255,255,0.06);
+  --bd2: rgba(255,255,255,0.10);
+  --bd3: rgba(255,255,255,0.16);
+  --tx: #EEEAF4;
+  --tx2: #A8A4B8;
+  --tx3: #5C5870;
+  --ac: #7C5CFC;
+  --ac2: #9B7EFF;
+  --ac3: rgba(124,92,252,0.15);
+  --gn: #2DD4A0;
+  --gn2: rgba(45,212,160,0.12);
+  --yw: #F5C842;
+  --yw2: rgba(245,200,66,0.12);
+  --rd: #FF5C7A;
+  --rd2: rgba(255,92,122,0.12);
+  --or: #FF8C42;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --st: env(safe-area-inset-top, 0px);
+  --r: 14px;
+  --r2: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--tx); font-family: 'Space Grotesk', sans-serif; }
+#app { display: flex; flex-direction: column; height: 100%; }
+
+/* ── HEADER ── */
+header {
+  padding: calc(var(--st) + 14px) 16px 12px;
+  background: rgba(6,6,8,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--bd2);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; position: relative; z-index: 10;
+}
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 17px; font-weight: 700;
+  letter-spacing: -0.02em; flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.logo-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ac); display: inline-block;
+  box-shadow: 0 0 8px var(--ac);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+
+/* TRANSPORT TOGGLE */
+.ttoggle {
+  display: flex; background: var(--s2);
+  border-radius: 10px; padding: 3px;
+  border: 0.5px solid var(--bd2); flex-shrink: 0;
+}
+.tt {
+  padding: 5px 10px; border-radius: 8px;
+  border: none; background: transparent;
+  color: var(--tx3); font-size: 12px; font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+.tt.on { background: var(--ac); color: #fff; box-shadow: 0 2px 10px rgba(124,92,252,0.4); }
+
+.hdr-end { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.hdr-count { text-align: right; }
+.hdr-count .v { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--tx); }
+.hdr-count .l { font-size: 10px; color: var(--tx3); margin-top: 1px; }
+
+/* RING */
+.ring { position: relative; width: 36px; height: 36px; display: none; flex-shrink: 0; }
+.ring svg { transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--s4); stroke-width: 3; }
+.ring-fill { fill: none; stroke: var(--ac); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); }
+.ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--ac); }
+
+/* ── NAV ── */
+nav {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 0.5px solid var(--bd2);
+  flex-shrink: 0; background: rgba(6,6,8,0.97);
+  backdrop-filter: blur(20px);
+  padding-bottom: var(--sb);
+  order: 99;
+}
+nav button {
+  background: none; border: none; color: var(--tx3);
+  padding: 10px 4px 8px; font-size: 10px; font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; transition: color .2s; letter-spacing: 0.03em;
+}
+.nav-icon { font-size: 18px; }
+nav button.on { color: var(--ac); }
+.tind { height: 2px; width: 16px; background: transparent; border-radius: 1px; transition: background .2s; }
+nav button.on .tind { background: var(--ac); }
+
+/* ── PAGES ── */
+.pages { flex: 1; overflow: hidden; position: relative; }
+.pg { position: absolute; inset: 0; overflow-y: auto; padding: 14px; display: none; -webkit-overflow-scrolling: touch; }
+.pg.on { display: block; }
+#pg-map { padding: 0; }
+.pb { height: calc(20px + var(--sb)); }
+
+/* ── SEARCH + FILTERS ── */
+.sw { position: relative; margin-bottom: 10px; }
+.sw input {
+  width: 100%; background: var(--s1);
+  border: 0.5px solid var(--bd2); border-radius: var(--r);
+  padding: 11px 14px 11px 38px;
+  color: var(--tx); font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; outline: none; transition: border-color .2s;
+}
+.sw input::placeholder { color: var(--tx3); }
+.sw input:focus { border-color: var(--ac); }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--tx3); }
+
+.time-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px; background: var(--s1);
+  border-radius: var(--r); padding: 10px 14px;
+  border: 0.5px solid var(--bd);
+}
+.time-row label { font-size: 12px; color: var(--tx3); white-space: nowrap; font-weight: 600; }
+.time-row input[type=range] { flex: 1; accent-color: var(--ac); height: 4px; cursor: pointer; }
+.time-val { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--ac); white-space: nowrap; min-width: 50px; text-align: right; }
+
+.fr { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.fr::-webkit-scrollbar { display: none; }
+.fp {
+  padding: 6px 13px; border-radius: 20px; font-size: 12px;
+  white-space: nowrap; cursor: pointer; border: 0.5px solid var(--bd2);
+  background: transparent; color: var(--tx3);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 500;
+  flex-shrink: 0; transition: all .15s;
+}
+.fp.on { background: var(--ac3); color: var(--ac2); border-color: rgba(124,92,252,0.4); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--s1); border-radius: var(--r2);
+  border: 0.5px solid var(--bd2); margin-bottom: 8px;
+  overflow: hidden; transition: border-color .2s;
+}
+.ch { padding: 14px 15px; display: flex; align-items: flex-start; gap: 11px; cursor: pointer; }
+.cb { padding: 0 15px 14px; display: none; }
+.cb.open { display: block; }
+
+/* SECTOR INDICATOR */
+.si-dot { width: 3px; border-radius: 2px; flex-shrink: 0; align-self: stretch; min-height: 36px; }
+.d-food { background: var(--or); }
+.d-retail { background: var(--ac); }
+.d-logis { background: var(--yw); }
+.d-livr { background: var(--gn); }
+.d-autre { background: var(--tx3); }
+
+.ci { flex: 1; min-width: 0; }
+.cn {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 6px; color: var(--tx);
+}
+.ca { font-size: 11px; color: var(--tx3); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cr { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+
+/* STATUS BUTTON */
+.stbtn {
+  padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  border: none; cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.01em; transition: all .15s;
+}
+.s-todo { background: var(--s3); color: var(--tx3); }
+.s-done { background: var(--gn2); color: var(--gn); }
+.s-relance { background: var(--yw2); color: var(--yw); }
+.s-nope { background: var(--rd2); color: var(--rd); }
+
+.card-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--tx3); }
+
+/* ZONE BADGE */
+.zbadge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 17px; height: 17px; border-radius: 5px;
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+}
+
+/* DETAIL */
+.detail-sep { height: 0.5px; background: var(--bd); margin-bottom: 12px; }
+
+.time-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.tg-cell {
+  background: var(--s2); border-radius: 12px;
+  padding: 9px 6px; text-align: center;
+  border: 0.5px solid var(--bd);
+  transition: border-color .2s;
+}
+.tg-cell.active { border-color: var(--ac); background: var(--ac3); }
+.tg-val { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; }
+.tg-lbl { font-size: 10px; color: var(--tx3); margin-top: 2px; font-weight: 500; }
+.tv-walk { color: var(--or); }
+.tv-bike { color: var(--gn); }
+.tv-bus { color: var(--ac2); }
+
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.btn-nav {
+  background: var(--ac); color: #fff; border: none; border-radius: 12px;
+  padding: 11px; font-size: 13px; font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: opacity .15s; box-shadow: 0 4px 14px rgba(124,92,252,0.3);
+}
+.btn-nav:active { opacity: .85; }
+.btn-sec {
+  background: var(--s2); color: var(--tx); border: 0.5px solid var(--bd2);
+  border-radius: 12px; padding: 11px; font-size: 13px;
+  font-family: 'Space Grotesk', sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+.note-input {
+  background: var(--s2); border: 0.5px solid var(--bd);
+  border-radius: 12px; padding: 10px 12px; color: var(--tx);
+  font-family: 'Space Grotesk', sans-serif; font-size: 12px;
+  outline: none; resize: none; height: 52px; width: 100%;
+  transition: border-color .2s;
+}
+.note-input:focus { border-color: var(--ac); }
+.note-input::placeholder { color: var(--tx3); }
+
+.meta-line { font-size: 11px; color: var(--tx3); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+/* ── MAP ── */
+#mapbox { height: 100%; width: 100%; }
+
+.map-panel {
+  position: absolute; bottom: calc(10px + var(--sb));
+  left: 10px; right: 10px; z-index: 1000;
+  background: rgba(10,10,14,0.97);
+  border-radius: var(--r2); border: 0.5px solid var(--bd3);
+  overflow: hidden; max-height: 55vh;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(30px);
+}
+.mp-head {
+  padding: 13px 15px 10px;
+  border-bottom: 0.5px solid var(--bd2);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.mp-title { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--tx2); letter-spacing: 0.05em; }
+.mp-kpis { display: flex; gap: 14px; }
+.mp-kpi .v { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--ac); }
+.mp-kpi .l { font-size: 9px; color: var(--tx3); font-weight: 600; letter-spacing: 0.04em; }
+.mp-body { overflow-y: auto; padding: 9px 11px; flex: 1; -webkit-overflow-scrolling: touch; }
+.mp-body::-webkit-scrollbar { display: none; }
+
+/* ZONE CARDS */
+.zc { background: var(--s2); border-radius: 12px; border: 0.5px solid var(--bd2); margin-bottom: 6px; overflow: hidden; }
+.zc-head { padding: 10px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.zc-color { width: 3px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.zc-info { flex: 1; min-width: 0; }
+.zc-name { font-size: 13px; font-weight: 600; color: var(--tx); }
+.zc-sub { font-size: 10px; color: var(--tx3); margin-top: 2px; font-family: 'Space Mono', monospace; }
+.zc-badge { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--tx3); flex-shrink: 0; }
+.zc-body { display: none; padding: 0 12px 10px; }
+.zc-body.open { display: block; }
+
+.stop-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.stop-item { display: flex; align-items: center; gap: 7px; padding: 7px 9px; background: var(--s3); border-radius: 9px; }
+.stop-num {
+  width: 20px; height: 20px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+  background: var(--s4); color: var(--tx3);
+  font-family: 'Space Mono', monospace;
+}
+.stop-num.done { background: var(--gn2); color: var(--gn); }
+.stop-info { flex: 1; min-width: 0; }
+.stop-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stop-meta { font-size: 10px; color: var(--tx3); font-family: 'Space Mono', monospace; }
+.stop-stbtn {
+  border: none; border-radius: 7px; padding: 3px 7px;
+  font-size: 10px; font-weight: 600; cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif; flex-shrink: 0;
+}
+
+.btn-launch {
+  width: 100%; background: var(--ac); color: #fff; border: none;
+  border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  box-shadow: 0 4px 14px rgba(124,92,252,0.3);
+}
+
+/* ── STATS ── */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.stat-box { background: var(--s1); border-radius: var(--r2); padding: 14px 15px; border: 0.5px solid var(--bd); }
+.stat-box .v { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; }
+.stat-box .l { font-size: 11px; color: var(--tx3); margin-top: 3px; font-weight: 600; letter-spacing: 0.02em; }
+
+.section-title { font-size: 10px; font-weight: 700; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+
+.prog-item { margin-bottom: 9px; }
+.prog-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; font-weight: 500; }
+.prog-track { height: 4px; background: var(--s3); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+.top-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.5px solid var(--bd); }
+.top-row:last-child { border-bottom: none; }
+.top-num { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--ac); width: 16px; flex-shrink: 0; }
+.top-info { flex: 1; min-width: 0; }
+.top-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top-meta { font-size: 10px; color: var(--tx3); font-family: 'Space Mono', monospace; margin-top: 1px; }
+
+/* ── INFO PAGE ── */
+.info-card { background: var(--s1); border-radius: var(--r2); padding: 16px; border: 0.5px solid var(--bd); margin-bottom: 8px; }
+.info-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--bd); }
+.info-row:last-child { border-bottom: none; }
+.info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.info-text { font-size: 13px; color: var(--tx2); line-height: 1.5; }
+.info-text strong { color: var(--tx); font-weight: 600; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: calc(72px + var(--sb)); left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--s3); color: var(--tx); padding: 9px 18px;
+  border-radius: 20px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: all .25s; pointer-events: none;
+  z-index: 9999; white-space: nowrap; border: 0.5px solid var(--bd3);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 48px 20px; }
+.empty-icon { font-size: 40px; opacity: 0.2; margin-bottom: 12px; }
+.empty-text { font-size: 13px; color: var(--tx3); line-height: 1.6; }
+
+/* LEAFLET OVERRIDES */
+.leaflet-container { background: var(--bg) !important; }
+.leaflet-popup-content-wrapper { background: var(--s2); color: var(--tx); border: 0.5px solid var(--bd3); border-radius: 14px; box-shadow: none; }
+.leaflet-popup-tip { background: var(--s2); }
+.leaflet-popup-content { margin: 11px 14px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; line-height: 1.5; }
+.leaflet-control-zoom a { background: var(--s2) !important; color: var(--tx) !important; border-color: var(--bd3) !important; }
+.leaflet-tooltip { background: none; border: none; box-shadow: none; padding: 0; }
 </style>
 </head>
 <body>
 <div id="app">
+
 <header>
-  <div class="logo">Job<span>Radar</span></div>
-  <div class="transport-toggle">
-    <button class="tt-btn" id="tt-pied" onclick="setTransport('pied')">🚶</button>
-    <button class="tt-btn on" id="tt-velo" onclick="setTransport('velo')">🚴 Vélo</button>
-    <button class="tt-btn" id="tt-bus" onclick="setTransport('bus')">🚌 Bus</button>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    JobRadar
   </div>
-  <div class="hdr-r">
-    <div class="hdr-info" id="hinfo"></div>
+  <div class="ttoggle">
+    <button class="tt" id="tt-pied" onclick="setT('pied')">🚶</button>
+    <button class="tt on" id="tt-velo" onclick="setT('velo')">🚴 Vélo</button>
+    <button class="tt" id="tt-bus" onclick="setT('bus')">🚌 Bus</button>
+  </div>
+  <div class="hdr-end">
+    <div class="hdr-count" id="hcount"></div>
     <div class="ring" id="ring">
-      <svg width="34" height="34" viewBox="0 0 34 34">
-        <circle class="rt" cx="17" cy="17" r="14"/>
-        <circle class="rf" id="rf" cx="17" cy="17" r="14" stroke-dasharray="87.9" stroke-dashoffset="87.9"/>
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <circle class="ring-track" cx="18" cy="18" r="15"/>
+        <circle class="ring-fill" id="rf" cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="94.2"/>
       </svg>
-      <div class="rp" id="rp">0%</div>
+      <div class="ring-pct" id="rp">0%</div>
     </div>
   </div>
 </header>
-<nav>
-  <button class="on" onclick="goTab('liste')"><span class="ni">🗂</span><div class="tind" id="ti-liste"></div><span>Liste</span></button>
-  <button onclick="goTab('map')"><span class="ni">🗺</span><div class="tind" id="ti-map"></div><span>Carte</span></button>
-  <button onclick="goTab('stats')"><span class="ni">📊</span><div class="tind" id="ti-stats"></div><span>Stats</span></button>
-  <button onclick="goTab('info')"><span class="ni">💡</span><div class="tind" id="ti-info"></div><span>Conseils</span></button>
-</nav>
+
 <div class="pages">
+
+  <!-- LISTE -->
   <div class="pg on" id="pg-liste">
-    <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Rechercher..." oninput="renderListe()"></div>
+    <div class="sw">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="q" placeholder="Rechercher un établissement..." oninput="renderListe()">
+    </div>
     <div class="time-row">
-      <label>⏱ Max</label>
-      <input type="range" id="timeSlider" min="5" max="80" value="60" step="5" oninput="updateSlider()">
-      <div class="time-val" id="timeVal">60 min</div>
+      <label>MAX</label>
+      <input type="range" id="tslider" min="5" max="80" value="60" step="5" oninput="onSlider()">
+      <div class="time-val" id="tval">60 min</div>
     </div>
     <div class="fr">
       <button class="fp on" onclick="setF('all',this)">Tous</button>
       <button class="fp" onclick="setF('todo',this)">À faire</button>
-      <button class="fp" onclick="setF('done',this)">✓ Faits</button>
+      <button class="fp" onclick="setF('done',this)">✓ Déposés</button>
       <button class="fp" onclick="setF('relance',this)">Relance</button>
-      <button class="fp" onclick="setF('near',this)">🔥 &lt;15min</button>
-      <button class="fp" onclick="setF('food',this)">🍔</button>
-      <button class="fp" onclick="setF('retail',this)">🛒</button>
-      <button class="fp" onclick="setF('logis',this)">📦</button>
-      <button class="fp" onclick="setF('livr',this)">🚴</button>
+      <button class="fp" onclick="setF('near',this)">⚡ &lt;15min</button>
+      <button class="fp" onclick="setF('food',this)">🍔 Resto</button>
+      <button class="fp" onclick="setF('retail',this)">🛒 Retail</button>
+      <button class="fp" onclick="setF('logis',this)">📦 Logistique</button>
+      <button class="fp" onclick="setF('livr',this)">🚴 Livraison</button>
     </div>
     <div id="liste"></div>
     <div class="pb"></div>
   </div>
-  <div class="pg" id="pg-map"><div id="mapbox"></div>
-    <div class="map-overlay" id="mo">
-      <div class="mo-head">
-        <div class="mo-title" id="mo-title">Zones 500m</div>
-        <div class="mo-kpis">
-          <div class="mo-kpi"><div class="v" id="mo-cl">—</div><div class="l">zones</div></div>
-          <div class="mo-kpi"><div class="v" id="mo-st">—</div><div class="l">stops</div></div>
-          <div class="mo-kpi"><div class="v" id="mo-do">—</div><div class="l">faits</div></div>
+
+  <!-- MAP -->
+  <div class="pg" id="pg-map">
+    <div id="mapbox"></div>
+    <div class="map-panel">
+      <div class="mp-head">
+        <div class="mp-title" id="mp-title">TOURNÉES · ZONES 500M</div>
+        <div class="mp-kpis">
+          <div class="mp-kpi"><div class="v" id="mp-z">—</div><div class="l">ZONES</div></div>
+          <div class="mp-kpi"><div class="v" id="mp-s">—</div><div class="l">STOPS</div></div>
+          <div class="mp-kpi"><div class="v" id="mp-d">—</div><div class="l">FAITS</div></div>
         </div>
       </div>
-      <div class="mo-clusters" id="mo-clusters"></div>
+      <div class="mp-body" id="mp-body"></div>
     </div>
   </div>
-  <div class="pg" id="pg-stats"><div id="stats"></div><div class="pb"></div></div>
+
+  <!-- STATS -->
+  <div class="pg" id="pg-stats">
+    <div id="stats"></div>
+    <div class="pb"></div>
+  </div>
+
+  <!-- INFO -->
   <div class="pg" id="pg-info">
-    <div class="card" style="padding:14px;margin-bottom:8px">
-      <div class="sec-lbl">Données réelles scrapées</div>
-      <p style="font-size:13px;color:var(--mu2);line-height:1.7">
-        <strong style="color:var(--tx)">1163 établissements</strong> Rouen &amp; alentours<br>
-        Depuis <strong style="color:var(--tx)">Mont-Saint-Aignan</strong><br><br>
-        Vitesses utilisées :<br>
-        🚶 À pied : 5 km/h<br>
-        🚴 Vélo : 15 km/h<br>
-        🚌 Bus : 20 km/h + 8 min d'attente<br><br>
-        Zones créées automatiquement par clustering (rayon 500m).
-      </p>
+    <div class="info-card">
+      <div class="section-title" style="margin-bottom:10px">Données réelles scrapées</div>
+      <div class="info-row"><div class="info-icon">📍</div><div class="info-text"><strong>1163 établissements</strong> scrapés autour de Rouen depuis Mont-Saint-Aignan</div></div>
+      <div class="info-row"><div class="info-icon">🚶</div><div class="info-text"><strong>À pied</strong> : 5 km/h · <strong>🚴 Vélo</strong> : 15 km/h · <strong>🚌 Bus</strong> : 20 km/h + 8 min d'attente</div></div>
+      <div class="info-row"><div class="info-icon">🗺</div><div class="info-text">Zones créées par clustering automatique (rayon <strong>500m</strong>), triées du plus proche au plus loin</div></div>
+      <div class="info-row"><div class="info-icon">💾</div><div class="info-text">Tout est sauvegardé localement sur ton téléphone, <strong>fonctionne hors ligne</strong></div></div>
     </div>
-    <div class="card" style="padding:14px;margin-bottom:8px">
-      <div class="sec-lbl">Conseils terrain 🎯</div>
-      <p style="font-size:12px;color:var(--mu2);line-height:2">
-        📅 <strong style="color:var(--tx)">Mar/Mer 10h-12h</strong> → managers dispo<br>
-        🚴 <strong style="color:var(--tx)">685 établissements</strong> à moins de 5 km<br>
-        🔥 <strong style="color:var(--tx)">118 établissements</strong> à moins de 2 km à pied<br>
-        📦 <strong style="color:var(--tx)">Intérim en priorité</strong> → missions rapides<br>
-        🏪 <strong style="color:var(--tx)">Centre Les Coquets</strong> → 6 commerces à 400m
-      </p>
+    <div class="info-card">
+      <div class="section-title" style="margin-bottom:10px">Conseils terrain</div>
+      <div class="info-row"><div class="info-icon">📅</div><div class="info-text"><strong>Mardi / Mercredi 10h-12h</strong> — managers disponibles, meilleur créneau pour déposer un CV</div></div>
+      <div class="info-row"><div class="info-icon">⚡</div><div class="info-text"><strong>56 établissements</strong> à moins d'1km — commence par eux à pied</div></div>
+      <div class="info-row"><div class="info-icon">🏪</div><div class="info-text"><strong>Centre Les Coquets</strong> (400m) — 6 commerces regroupés, idéal pour débuter</div></div>
+      <div class="info-row"><div class="info-icon">📦</div><div class="info-text"><strong>Intérim en priorité</strong> — Manpower, Adecco, Randstad → missions logistique rapides</div></div>
     </div>
-    <div class="card" style="padding:14px">
-      <div class="sec-lbl">Reset</div>
-      <button onclick="if(confirm('Remettre tout à zéro ?')){resetData()}" style="width:100%;background:var(--rd2);color:var(--rd);border:0.5px solid var(--rd);border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">
+    <div class="info-card">
+      <div class="section-title" style="margin-bottom:10px">Reset</div>
+      <button onclick="if(confirm('Remettre tous les statuts à zéro ?')){resetAll()}" style="width:100%;background:var(--rd2);color:var(--rd);border:0.5px solid rgba(255,92,122,0.3);border-radius:12px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif">
         🗑 Réinitialiser tous les statuts
       </button>
     </div>
     <div class="pb"></div>
   </div>
+
 </div>
+
+<nav>
+  <button class="on" onclick="goTab('liste')"><span class="nav-icon">🗂</span><div class="tind" id="ti-liste"></div><span>Liste</span></button>
+  <button onclick="goTab('map')"><span class="nav-icon">🗺</span><div class="tind" id="ti-map"></div><span>Carte</span></button>
+  <button onclick="goTab('stats')"><span class="nav-icon">📊</span><div class="tind" id="ti-stats"></div><span>Stats</span></button>
+  <button onclick="goTab('info')"><span class="nav-icon">💡</span><div class="tind" id="ti-info"></div><span>Info</span></button>
+</nav>
+
 </div>
 <div class="toast" id="toast"></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data.js"></script>
 <script>
-const HOME={lat:49.4657,lon:1.0832};
-const RADIUS=0.5;
-const CC=['#FF4D1C','#3B82F6','#22C55E','#F59E0B','#A855F7','#EC4899','#06B6D4','#84CC16','#F97316','#6366F1','#14B8A6','#F43F5E'];
-let STATUTS={},NOTES={},DATES={};
-let transport='velo',maxTime=60,activeFilter='all',activeTab='liste';
-let map=null,mapLayers=[],clusters=[];
-const SN={todo:'done',done:'relance',relance:'nope',nope:'todo'};
-const SL={todo:'À faire',done:'Déposé ✓',relance:'Relancer',nope:'Ignoré'};
-const SC={todo:'s-todo',done:'s-done',relance:'s-relance',nope:'s-nope'};
-const SCOL={food:'#FF4D1C',retail:'#3B82F6',logis:'#F59E0B',livr:'#22C55E',autre:'#888'};
-const SLBL={food:'🍔 Restauration',retail:'🛒 Retail',logis:'📦 Logistique',livr:'🚴 Livraison',autre:'💼 Autre'};
-const TI={pied:'🚶',velo:'🚴',bus:'🚌'};
+// ═══════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════
+const HOME = { lat: 49.4657, lon: 1.0832 };
+const CLUSTER_R = 0.5;
+const COLORS = ['#7C5CFC','#2DD4A0','#F5C842','#FF8C42','#FF5C7A','#06B6D4','#84CC16','#F97316','#A855F7','#EC4899','#14B8A6','#6366F1'];
 
-function save(){try{localStorage.setItem('jr4_s',JSON.stringify(STATUTS));localStorage.setItem('jr4_n',JSON.stringify(NOTES));localStorage.setItem('jr4_t',JSON.stringify(DATES));localStorage.setItem('jr4_tr',transport);localStorage.setItem('jr4_tm',maxTime);}catch(e){}}
-function loadSaved(){try{const s=localStorage.getItem('jr4_s');if(s)STATUTS=JSON.parse(s);const n=localStorage.getItem('jr4_n');if(n)NOTES=JSON.parse(n);const t=localStorage.getItem('jr4_t');if(t)DATES=JSON.parse(t);const tr=localStorage.getItem('jr4_tr');if(tr)transport=tr;const tm=localStorage.getItem('jr4_tm');if(tm)maxTime=parseInt(tm);}catch(e){}CSV_DATA.forEach(r=>{if(!STATUTS[r._id])STATUTS[r._id]='todo';if(!NOTES[r._id])NOTES[r._id]='';});}
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let ST = {}, NO = {}, DT = {};
+let transport = 'velo', maxT = 60;
+let filt = 'all', tab = 'liste';
+let map = null, mapL = [];
+let CL = [];
 
-function gett(r){return transport==='pied'?r.t_pied:transport==='velo'?r.t_velo:r.t_bus;}
+const NEXT = { todo:'done', done:'relance', relance:'nope', nope:'todo' };
+const LABEL = { todo:'À faire', done:'Déposé ✓', relance:'Relancer', nope:'Ignoré' };
+const CLS = { todo:'s-todo', done:'s-done', relance:'s-relance', nope:'s-nope' };
+const SCOL = { food:'#FF8C42', retail:'#7C5CFC', logis:'#F5C842', livr:'#2DD4A0', autre:'#5C5870' };
+const SLBL = { food:'🍔 Restauration', retail:'🛒 Retail', logis:'📦 Logistique', livr:'🚴 Livraison', autre:'💼 Autre' };
+const TIC = { pied:'🚶', velo:'🚴', bus:'🚌' };
+const TMODE = { pied:'walking', velo:'bicycling', bus:'transit' };
 
-function setTransport(t){
-  transport=t;
-  document.querySelectorAll('.tt-btn').forEach(b=>b.classList.remove('on'));
+// ═══════════════════════════════════════
+//  PERSIST
+// ═══════════════════════════════════════
+function save() {
+  try {
+    localStorage.setItem('jr5_st', JSON.stringify(ST));
+    localStorage.setItem('jr5_no', JSON.stringify(NO));
+    localStorage.setItem('jr5_dt', JSON.stringify(DT));
+    localStorage.setItem('jr5_tr', transport);
+    localStorage.setItem('jr5_tm', maxT);
+  } catch(e) {}
+}
+function loadSaved() {
+  try {
+    const s=localStorage.getItem('jr5_st'); if(s) ST=JSON.parse(s);
+    const n=localStorage.getItem('jr5_no'); if(n) NO=JSON.parse(n);
+    const d=localStorage.getItem('jr5_dt'); if(d) DT=JSON.parse(d);
+    const t=localStorage.getItem('jr5_tr'); if(t) transport=t;
+    const m=localStorage.getItem('jr5_tm'); if(m) maxT=parseInt(m);
+  } catch(e) {}
+  CSV_DATA.forEach(r => { if(!ST[r._id]) ST[r._id]='todo'; if(!NO[r._id]) NO[r._id]=''; });
+}
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function gt(r) { return transport==='pied' ? r.t_pied : transport==='velo' ? r.t_velo : r.t_bus; }
+
+function hav(a, b) {
+  const R=6371, dL=(b.lat-a.lat)*Math.PI/180, dl=(b.lon-a.lon)*Math.PI/180;
+  const x = Math.sin(dL/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function gpsu(r) {
+  if(r.url_maps && r.url_maps.startsWith('http')) return r.url_maps;
+  if(r.lat && r.lon) return `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=${TMODE[transport]}`;
+  return `https://maps.google.com/?q=${encodeURIComponent((r.nom||'') + ' ' + (r.adresse||''))}`;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════
+//  TRANSPORT
+// ═══════════════════════════════════════
+function setT(t) {
+  transport = t;
+  document.querySelectorAll('.tt').forEach(b => b.classList.remove('on'));
   document.getElementById('tt-'+t).classList.add('on');
-  buildClusters();save();renderAll();
-  toast(TI[t]+' Mode '+{pied:'Pied',velo:'Vélo',bus:'Bus'}[t]);
+  buildCL(); save(); renderAll();
+  toast(TIC[t]+' Mode '+{pied:'Pied',velo:'Vélo',bus:'Bus'}[t]+' activé');
 }
-function updateSlider(){maxTime=parseInt(document.getElementById('timeSlider').value);document.getElementById('timeVal').textContent=maxTime+' min';buildClusters();renderListe();if(activeTab==='map')renderMap();}
 
-function hav(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+function onSlider() {
+  maxT = parseInt(document.getElementById('tslider').value);
+  document.getElementById('tval').textContent = maxT + ' min';
+  buildCL(); renderListe();
+  if(tab==='map') renderMap();
+}
 
-function buildClusters(){
-  const pts=CSV_DATA.filter(r=>r.lat&&r.lon&&gett(r)<=maxTime);
-  const visited=new Set();clusters=[];
-  pts.sort((a,b)=>hav(HOME,{lat:a.lat,lon:a.lon})-hav(HOME,{lat:b.lat,lon:b.lon}));
-  pts.forEach(pt=>{
-    if(visited.has(pt._id))return;visited.add(pt._id);
-    const nb=pts.filter(p=>!visited.has(p._id)&&hav({lat:pt.lat,lon:pt.lon},{lat:p.lat,lon:p.lon})<=RADIUS);
-    const mem=[pt,...nb];nb.forEach(n=>visited.add(n._id));
-    const ci=clusters.length;mem.forEach(m=>{m._cluster=ci;});
-    const cLat=mem.reduce((s,m)=>s+m.lat,0)/mem.length,cLon=mem.reduce((s,m)=>s+m.lon,0)/mem.length;
-    clusters.push({id:ci,members:tsp(mem),lat:cLat,lon:cLon,distHome:hav(HOME,{lat:cLat,lon:cLon}).toFixed(1),color:CC[ci%CC.length]});
+// ═══════════════════════════════════════
+//  CLUSTERING (DBSCAN + TSP-NN)
+// ═══════════════════════════════════════
+function buildCL() {
+  const pts = CSV_DATA.filter(r => r.lat && r.lon && gt(r) <= maxT);
+  const vis = new Set(); CL = [];
+  pts.sort((a,b) => hav(HOME,{lat:a.lat,lon:a.lon}) - hav(HOME,{lat:b.lat,lon:b.lon}));
+  pts.forEach(pt => {
+    if(vis.has(pt._id)) return; vis.add(pt._id);
+    const nb = pts.filter(p => !vis.has(p._id) && hav({lat:pt.lat,lon:pt.lon},{lat:p.lat,lon:p.lon}) <= CLUSTER_R);
+    const mem = [pt,...nb]; nb.forEach(n=>vis.add(n._id));
+    const ci = CL.length; mem.forEach(m=>{ m._cl=ci; });
+    const cLat=mem.reduce((s,m)=>s+m.lat,0)/mem.length, cLon=mem.reduce((s,m)=>s+m.lon,0)/mem.length;
+    CL.push({ id:ci, members:tspNN(mem), lat:cLat, lon:cLon, dh:hav(HOME,{lat:cLat,lon:cLon}).toFixed(1), col:COLORS[ci%COLORS.length] });
   });
-  CSV_DATA.filter(r=>!pts.find(p=>p._id===r._id)).forEach(r=>{r._cluster=-1;});
+  CSV_DATA.filter(r=>!pts.find(p=>p._id===r._id)).forEach(r=>{ r._cl=-1; });
 }
-function tsp(pts){if(pts.length<=1)return pts;const uv=[...pts];const r=[];let c={lat:HOME.lat,lon:HOME.lon};while(uv.length){let bi=0,bd=Infinity;uv.forEach((p,i)=>{const d=hav(c,{lat:p.lat,lon:p.lon});if(d<bd){bd=d;bi=i;}});r.push(uv[bi]);c={lat:uv[bi].lat,lon:uv[bi].lon};uv.splice(bi,1);}return r;}
-function cd(cl){return cl.members.filter(r=>STATUTS[r._id]==='done').length;}
-function sc(){return clusters.sort((a,b)=>parseFloat(a.distHome)-parseFloat(b.distHome));}
 
-function gpsu(r){if(r.url_maps&&r.url_maps.startsWith('http'))return r.url_maps;if(r.lat&&r.lon)return`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=${transport==='bus'?'transit':transport==='velo'?'bicycling':'walking'}`;return`https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}`;}
+function tspNN(pts) {
+  if(pts.length<=1) return pts;
+  const uv=[...pts]; const rt=[]; let c={lat:HOME.lat,lon:HOME.lon};
+  while(uv.length) {
+    let bi=0,bd=Infinity;
+    uv.forEach((p,i)=>{ const d=hav(c,{lat:p.lat,lon:p.lon}); if(d<bd){bd=d;bi=i;} });
+    rt.push(uv[bi]); c={lat:uv[bi].lat,lon:uv[bi].lon}; uv.splice(bi,1);
+  }
+  return rt;
+}
 
-function setF(f,btn){activeFilter=f;document.querySelectorAll('.fp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderListe();}
-function getFiltered(){
-  const q=(document.getElementById('q')?.value||'').toLowerCase();
-  return CSV_DATA.filter(r=>{
-    if(q&&!(r.nom||'').toLowerCase().includes(q)&&!(r.adresse||'').toLowerCase().includes(q))return false;
-    const st=STATUTS[r._id]||'todo',t=gett(r);
-    if(t>maxTime)return false;
-    if(activeFilter==='todo'&&st!=='todo')return false;
-    if(activeFilter==='done'&&st!=='done')return false;
-    if(activeFilter==='relance'&&st!=='relance')return false;
-    if(activeFilter==='near'&&t>15)return false;
-    if(activeFilter==='food'&&r.secteur!=='food')return false;
-    if(activeFilter==='retail'&&r.secteur!=='retail')return false;
-    if(activeFilter==='logis'&&r.secteur!=='logis')return false;
-    if(activeFilter==='livr'&&r.secteur!=='livr')return false;
+function clDone(cl) { return cl.members.filter(r=>ST[r._id]==='done').length; }
+function sortedCL() { return [...CL].sort((a,b)=>parseFloat(a.dh)-parseFloat(b.dh)); }
+
+// ═══════════════════════════════════════
+//  LISTE
+// ═══════════════════════════════════════
+function setF(f, btn) {
+  filt = f;
+  document.querySelectorAll('.fp').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderListe();
+}
+
+function getF() {
+  const q = (document.getElementById('q')?.value||'').toLowerCase();
+  return CSV_DATA.filter(r => {
+    if(q && !(r.nom||'').toLowerCase().includes(q) && !(r.adresse||'').toLowerCase().includes(q)) return false;
+    const s=ST[r._id]||'todo', t=gt(r);
+    if(t > maxT) return false;
+    if(filt==='todo'    && s!=='todo') return false;
+    if(filt==='done'    && s!=='done') return false;
+    if(filt==='relance' && s!=='relance') return false;
+    if(filt==='near'    && t>15) return false;
+    if(filt==='food'    && r.secteur!=='food') return false;
+    if(filt==='retail'  && r.secteur!=='retail') return false;
+    if(filt==='logis'   && r.secteur!=='logis') return false;
+    if(filt==='livr'    && r.secteur!=='livr') return false;
     return true;
-  }).sort((a,b)=>gett(a)-gett(b));
+  }).sort((a,b) => gt(a)-gt(b));
 }
 
-function renderListe(){
-  const el=document.getElementById('liste');
-  const f=getFiltered();
-  if(!f.length){el.innerHTML=`<div class="empty"><div class="ei">🔍</div><p>Aucun résultat</p></div>`;return;}
-  const s=sc();
-  el.innerHTML=f.slice(0,150).map(r=>{
-    const st=STATUTS[r._id]||'todo',t=gett(r),ci=r._cluster,cl=ci>=0?clusters[ci]:null;
-    const idx=cl?s.findIndex(c=>c.id===cl.id):-1,clc=cl?cl.color:'transparent';
-    return`<div class="card"><div class="ch" onclick="tc(${r._id})">
-      <div class="sdot d-${r.secteur}"></div>
-      <div class="ci">
-        <div class="cn">${idx>=0?`<span class="zbadge" style="background:${clc}25;color:${clc};border:0.5px solid ${clc}50">${idx+1}</span>`:''} ${r.nom||'?'}</div>
-        <div class="ca">${r.adresse||''}</div>
+function renderListe() {
+  const el = document.getElementById('liste');
+  const f = getF();
+  if(!f.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Aucun résultat<br>pour ce filtre</div></div>`;
+    return;
+  }
+  const sc = sortedCL();
+  el.innerHTML = f.slice(0,150).map(r => {
+    const s=ST[r._id]||'todo', t=gt(r);
+    const cl=r._cl>=0?CL[r._cl]:null, idx=cl?sc.findIndex(c=>c.id===cl.id):-1;
+    const clc=cl?cl.col:'transparent';
+    return `
+    <div class="card">
+      <div class="ch" onclick="toggleC(${r._id})">
+        <div class="si-dot d-${r.secteur}"></div>
+        <div class="ci">
+          <div class="cn">
+            ${idx>=0?`<span class="zbadge" style="background:${clc}20;color:${clc};border:0.5px solid ${clc}40">${idx+1}</span>`:''}
+            ${r.nom||'?'}
+          </div>
+          <div class="ca">${r.adresse||''}</div>
+        </div>
+        <div class="cr">
+          <button class="stbtn ${CLS[s]}" onclick="event.stopPropagation();toggleS(${r._id})">${LABEL[s]}</button>
+          <div class="card-time">${TIC[transport]} ${t}min · ${r.dist_km}km</div>
+        </div>
       </div>
-      <div class="cr">
-        <button class="st ${SC[st]}" onclick="event.stopPropagation();ts(${r._id})">${SL[st]}</button>
-        <div class="tb">${TI[transport]} ${t}min · ${r.dist_km}km</div>
+      <div class="cb" id="cb-${r._id}">
+        <div class="detail-sep"></div>
+        <div class="time-grid">
+          <div class="tg-cell ${transport==='pied'?'active':''}">
+            <div class="tg-val tv-walk">${r.t_pied}</div><div class="tg-lbl">🚶 min</div>
+          </div>
+          <div class="tg-cell ${transport==='velo'?'active':''}">
+            <div class="tg-val tv-bike">${r.t_velo}</div><div class="tg-lbl">🚴 min</div>
+          </div>
+          <div class="tg-cell ${transport==='bus'?'active':''}">
+            <div class="tg-val tv-bus">${r.t_bus}</div><div class="tg-lbl">🚌 min</div>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn-nav" onclick="window.open('${gpsu(r)}','_blank')">📍 Naviguer</button>
+          ${r.telephone ? `<button class="btn-sec" onclick="window.open('tel:${r.telephone}')">📞 Appeler</button>` : `<button class="btn-sec" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}','_blank')">🗺 Maps</button>`}
+        </div>
+        <div class="meta-line">
+          ${r.note?`<span>⭐ ${r.note}</span><span style="color:var(--bd3)">·</span>`:''}
+          ${r.nb_avis?`<span>${r.nb_avis} avis</span><span style="color:var(--bd3)">·</span>`:''}
+          ${idx>=0?`<span style="color:${clc}">Zone ${idx+1} · ${cl.dh}km</span>`:''}
+        </div>
+        <textarea class="note-input" placeholder="Notes (manager, horaires, RDV...)" onchange="saveN(${r._id},this.value)">${NO[r._id]||''}</textarea>
+        ${DT[r._id]?`<div style="font-size:10px;color:var(--tx3);margin-top:5px;font-family:'Space Mono',monospace">Visité le ${DT[r._id]}</div>`:''}
       </div>
-    </div>
-    <div class="cb" id="cb-${r._id}">
-      <div class="dg">
-        <div class="dc ${transport==='pied'?'am':''}"><div class="v vw">${r.t_pied}</div><div class="l">🚶 min</div></div>
-        <div class="dc ${transport==='velo'?'am':''}"><div class="v vb">${r.t_velo}</div><div class="l">🚴 min</div></div>
-        <div class="dc ${transport==='bus'?'am':''}"><div class="v vbus">${r.t_bus}</div><div class="l">🚌 min</div></div>
-      </div>
-      <div class="da">
-        <button class="bgps" onclick="window.open('${gpsu(r)}','_blank')">📍 Naviguer</button>
-        ${r.telephone?`<button class="bsec" onclick="window.open('tel:${r.telephone}')">📞 Appeler</button>`:`<button class="bsec" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}','_blank')">🗺 Maps</button>`}
-      </div>
-      ${r.note?`<div style="font-size:11px;color:var(--mu2);margin-bottom:7px">⭐ ${r.note} · ${r.nb_avis||''} avis</div>`:''}
-      ${idx>=0?`<div style="font-size:11px;color:${clc};margin-bottom:7px">📍 Zone ${idx+1} · ${cl.distHome} km</div>`:''}
-      <textarea class="ni2" placeholder="Notes (manager, RDV...)" onchange="sn(${r._id},this.value)">${NOTES[r._id]||''}</textarea>
-      ${DATES[r._id]?`<div style="font-size:10px;color:var(--mu2);margin-top:4px">Visité le ${DATES[r._id]}</div>`:''}
-    </div></div>`;
+    </div>`;
   }).join('');
-  if(f.length>150) document.getElementById('liste').innerHTML+=`<div style="text-align:center;padding:10px;font-size:12px;color:var(--mu2)">+${f.length-150} autres. Filtre pour affiner.</div>`;
+  if(f.length > 150) el.innerHTML += `<div style="text-align:center;padding:12px;font-size:12px;color:var(--tx3)">+ ${f.length-150} autres. Affine le filtre.</div>`;
   updateRing();
 }
-function tc(id){document.getElementById('cb-'+id)?.classList.toggle('open');}
-function ts(id){STATUTS[id]=SN[STATUTS[id]||'todo'];if(STATUTS[id]==='done')DATES[id]=new Date().toLocaleDateString('fr-FR');save();renderAll();toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[STATUTS[id]]);}
-function sn(id,v){NOTES[id]=v;save();}
 
-function initMap(){if(map)return;map=L.map('mapbox',{zoomControl:true,attributionControl:false}).setView([HOME.lat,HOME.lon],13);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);L.circleMarker([HOME.lat,HOME.lon],{radius:10,fillColor:'#FF4D1C',color:'#fff',weight:2,fillOpacity:1}).bindPopup('<strong>🏠 Chez toi</strong><br>Mont-Saint-Aignan').addTo(map);}
+function toggleC(id) { document.getElementById('cb-'+id)?.classList.toggle('open'); }
+function toggleS(id) {
+  ST[id] = NEXT[ST[id]||'todo'];
+  if(ST[id]==='done') DT[id] = new Date().toLocaleDateString('fr-FR');
+  save(); renderAll();
+  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[ST[id]]);
+}
+function saveN(id,v) { NO[id]=v; save(); }
 
-function renderMap(){
-  initMap();mapLayers.forEach(l=>l.remove());mapLayers=[];
-  const s=sc();document.getElementById('mo-title').textContent=`Zones 500m · ${TI[transport]} ${maxTime}min max`;
-  s.forEach((cl,idx)=>{
-    const col=cl.color,todo=cl.members.filter(r=>(STATUTS[r._id]||'todo')!=='nope');
-    if(todo.length>=2){const l=L.polyline([[HOME.lat,HOME.lon],...todo.map(r=>[r.lat,r.lon])],{color:col,weight:2.5,opacity:0.55,dashArray:'6 5'}).addTo(map);mapLayers.push(l);}
-    const ci=L.circle([cl.lat,cl.lon],{radius:500,color:col,weight:1,fillColor:col,fillOpacity:0.04,dashArray:'4 4'}).addTo(map);mapLayers.push(ci);
-    cl.members.forEach((r,si)=>{
-      const st=STATUTS[r._id]||'todo',done=st==='done',nope=st==='nope',fc=done?'#22C55E':nope?'#333':col;
-      const m=L.circleMarker([r.lat,r.lon],{radius:8,fillColor:fc,color:'#0A0A0A',weight:1.5,fillOpacity:nope?0.2:1});
-      if(!done&&!nope)m.bindTooltip(String(si+1),{permanent:true,direction:'center',className:'leaflet-tooltip',offset:[0,0]});
-      m.bindPopup(`<strong>${r.nom||'?'}</strong><br><span style="color:#888;font-size:11px">${r.adresse||''}</span><br><br>${TI[transport]} ${gett(r)}min · 📏 ${r.dist_km}km${r.note?` · ⭐${r.note}`:''}<br><span style="color:${col};font-size:11px">Zone ${idx+1}</span><br><br><button onclick="tsm(${r._id})" style="background:${fc};color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;width:100%;margin-bottom:5px">${SL[st]}</button><a href="${gpsu(r)}" target="_blank" style="display:block;text-align:center;font-size:11px;color:#FF4D1C">Naviguer ${TI[transport]} 📍</a>`);
-      m.addTo(map);mapLayers.push(m);
+// ═══════════════════════════════════════
+//  MAP
+// ═══════════════════════════════════════
+function initMap() {
+  if(map) return;
+  map = L.map('mapbox',{zoomControl:true,attributionControl:false}).setView([HOME.lat,HOME.lon],13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  L.circleMarker([HOME.lat,HOME.lon],{radius:10,fillColor:'#7C5CFC',color:'#fff',weight:2,fillOpacity:1})
+    .bindPopup('<strong style="font-family:Space Mono,monospace">🏠 CHEZ TOI</strong><br>Mont-Saint-Aignan').addTo(map);
+}
+
+function renderMap() {
+  initMap(); mapL.forEach(l=>l.remove()); mapL=[];
+  const sc = sortedCL();
+  document.getElementById('mp-title').textContent = `TOURNÉES · ${TIC[transport].toUpperCase()} · MAX ${maxT}MIN`;
+
+  sc.forEach((cl, idx) => {
+    const col = cl.col;
+    const todo = cl.members.filter(r=>(ST[r._id]||'todo')!=='nope');
+    if(todo.length >= 2) {
+      const l = L.polyline([[HOME.lat,HOME.lon],...todo.map(r=>[r.lat,r.lon])], {color:col,weight:2.5,opacity:0.5,dashArray:'6 5'}).addTo(map);
+      mapL.push(l);
+    }
+    const ci = L.circle([cl.lat,cl.lon],{radius:500,color:col,weight:1,fillColor:col,fillOpacity:0.04,dashArray:'4 4'}).addTo(map);
+    mapL.push(ci);
+    cl.members.forEach((r,si) => {
+      const s=ST[r._id]||'todo', done=s==='done', nope=s==='nope';
+      const fc = done?'#2DD4A0' : nope?'#1E1E26' : col;
+      const m = L.circleMarker([r.lat,r.lon],{radius:8,fillColor:fc,color:'#060608',weight:1.5,fillOpacity:nope?0.2:1});
+      if(!done&&!nope) m.bindTooltip(String(si+1),{permanent:true,direction:'center',className:'leaflet-tooltip',offset:[0,0]});
+      m.bindPopup(`
+        <strong style="font-family:Space Mono,monospace">${r.nom||'?'}</strong><br>
+        <span style="color:#5C5870;font-size:11px">${r.adresse||''}</span><br><br>
+        ${TIC[transport]} ${gt(r)}min · 📏 ${r.dist_km}km${r.note?' · ⭐'+r.note:''}<br>
+        <span style="color:${col};font-size:11px;font-family:Space Mono,monospace">ZONE ${idx+1}</span><br><br>
+        <button onclick="tsm(${r._id})" style="background:${fc};color:${done?'#060608':'#fff'};border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-bottom:5px;font-family:Space Grotesk,sans-serif">${LABEL[s]}</button>
+        <a href="${gpsu(r)}" target="_blank" style="display:block;text-align:center;font-size:11px;color:#7C5CFC;font-family:Space Mono,monospace">NAVIGUER ${TIC[transport]} →</a>
+      `);
+      m.addTo(map); mapL.push(m);
     });
   });
-  renderMO();
-  const ap=s.flatMap(c=>c.members.map(r=>[r.lat,r.lon]));
-  if(ap.length)map.fitBounds([...ap,[HOME.lat,HOME.lon]],{padding:[50,50]});
+
+  renderMapPanel();
+  const ap = sc.flatMap(c=>c.members.map(r=>[r.lat,r.lon]));
+  if(ap.length) map.fitBounds([...ap,[HOME.lat,HOME.lon]],{padding:[50,50]});
 }
 
-function renderMO(){
-  const s=sc(),ts=s.reduce((x,c)=>x+c.members.length,0),td=s.reduce((x,c)=>x+cd(c),0);
-  document.getElementById('mo-cl').textContent=s.length;document.getElementById('mo-st').textContent=ts;document.getElementById('mo-do').textContent=td;
-  const el=document.getElementById('mo-clusters');
-  if(!s.length){el.innerHTML=`<div style="text-align:center;padding:14px;color:var(--mu2);font-size:12px">Aucune zone dans ce rayon</div>`;return;}
-  el.innerHTML=s.map((cl,idx)=>{
-    const done=cd(cl),total=cl.members.length,pct=Math.round(done/total*100);
-    const tm=cl.members.filter(r=>(STATUTS[r._id]||'todo')==='todo');
-    const coords=tm.filter(r=>r.lat&&r.lon).slice(0,9).map(r=>`${r.lat},${r.lon}`).join('/');
-    const mu=coords?`https://www.google.com/maps/dir/${HOME.lat},${HOME.lon}/${coords}`:'#';
-    return`<div class="cc" id="cc-${cl.id}"><div class="cc-head" onclick="tcc(${cl.id})">
-      <div class="cc-dot" style="background:${cl.color}"></div>
-      <div class="cc-info"><div class="cc-title">Zone ${idx+1} — ${total} étab.</div><div class="cc-sub">${cl.distHome}km · ${TI[transport]} ${gett(cl.members[0])}min · ${done}/${total} faits</div></div>
-      <span style="font-size:11px;color:${done===total?'var(--gn)':'var(--mu2)'}">${done===total?'✅':'▸'}</span>
-    </div>
-    <div class="cc-body" id="ccb-${cl.id}">
-      <div class="cc-stops">${cl.members.map((r,si)=>{const st=STATUTS[r._id]||'todo';return`<div class="cc-stop"><div class="cc-num ${st==='done'?'done':''}">${st==='done'?'✓':(si+1)}</div><div class="cc-sinfo"><div class="cc-sname" style="${st==='done'?'text-decoration:line-through;opacity:.4':''}">${r.nom||'?'}</div><div class="cc-smeta">${TI[transport]} ${gett(r)}min · ${r.dist_km}km</div></div><button onclick="tsm(${r._id})" style="background:${st==='done'?'var(--gn2)':'var(--s4)'};color:${st==='done'?'var(--gn)':'var(--mu2)'};border:none;border-radius:7px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">${SL[st]}</button></div>`;}).join('')}</div>
-      ${tm.length>0?`<button class="btn-launch" onclick="window.open('${mu}','_blank')">${TI[transport]} Lancer Zone ${idx+1} (${tm.length} stops)</button>`:`<div style="text-align:center;font-size:12px;color:var(--gn);padding:5px">✅ Zone terminée !</div>`}
-    </div></div>`;
+function renderMapPanel() {
+  const sc = sortedCL();
+  const ts=sc.reduce((x,c)=>x+c.members.length,0), td=sc.reduce((x,c)=>x+clDone(c),0);
+  document.getElementById('mp-z').textContent = sc.length;
+  document.getElementById('mp-s').textContent = ts;
+  document.getElementById('mp-d').textContent = td;
+  const el = document.getElementById('mp-body');
+  if(!sc.length) { el.innerHTML=`<div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">Aucune zone accessible dans ce rayon</div>`; return; }
+  el.innerHTML = sc.map((cl,idx) => {
+    const done=clDone(cl), total=cl.members.length, pct=Math.round(done/total*100);
+    const todo=cl.members.filter(r=>(ST[r._id]||'todo')==='todo');
+    const coords=todo.filter(r=>r.lat&&r.lon).slice(0,9).map(r=>`${r.lat},${r.lon}`).join('/');
+    const murl=coords?`https://www.google.com/maps/dir/${HOME.lat},${HOME.lon}/${coords}`:'#';
+    return `
+    <div class="zc" id="zc-${cl.id}">
+      <div class="zc-head" onclick="toggleZC(${cl.id})">
+        <div class="zc-color" style="background:${cl.col}"></div>
+        <div class="zc-info">
+          <div class="zc-name">Zone ${idx+1} — ${total} établissements</div>
+          <div class="zc-sub">${cl.dh}km · ${TIC[transport]}${gt(cl.members[0])}min · ${done}/${total} (${pct}%)</div>
+        </div>
+        <div class="zc-badge">${done===total?'✅':'▸'}</div>
+      </div>
+      <div class="zc-body" id="zcb-${cl.id}">
+        <div class="stop-list">
+          ${cl.members.map((r,si)=>{
+            const s=ST[r._id]||'todo';
+            return `<div class="stop-item">
+              <div class="stop-num ${s==='done'?'done':''}">${s==='done'?'✓':(si+1)}</div>
+              <div class="stop-info">
+                <div class="stop-name" style="${s==='done'?'text-decoration:line-through;opacity:.4':''}">${r.nom||'?'}</div>
+                <div class="stop-meta">${TIC[transport]}${gt(r)}min · ${r.dist_km}km</div>
+              </div>
+              <button class="stop-stbtn" onclick="tsm(${r._id})"
+                style="background:${s==='done'?'var(--gn2)':'var(--s4)'};color:${s==='done'?'var(--gn)':'var(--tx3)'}">
+                ${LABEL[s]}
+              </button>
+            </div>`;
+          }).join('')}
+        </div>
+        ${todo.length>0
+          ? `<button class="btn-launch" onclick="window.open('${murl}','_blank')">${TIC[transport]} Lancer Zone ${idx+1} dans Maps</button>`
+          : `<div style="text-align:center;font-size:12px;color:var(--gn);padding:5px;font-weight:600">✅ Zone terminée !</div>`}
+      </div>
+    </div>`;
   }).join('');
 }
-function tcc(id){document.getElementById('ccb-'+id)?.classList.toggle('open');}
-function tsm(id){STATUTS[id]=SN[STATUTS[id]||'todo'];if(STATUTS[id]==='done')DATES[id]=new Date().toLocaleDateString('fr-FR');save();renderAll();toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[STATUTS[id]]);}
 
-function renderStats(){
-  const el=document.getElementById('stats');
-  const total=CSV_DATA.length,inR=CSV_DATA.filter(r=>gett(r)<=maxTime).length;
-  const done=Object.values(STATUTS).filter(s=>s==='done').length,rl=Object.values(STATUTS).filter(s=>s==='relance').length;
-  const pct=total?Math.round(done/total*100):0,s=sc();
-  const secs=['food','retail','logis','livr','autre'],scols={food:'#FF4D1C',retail:'#3B82F6',logis:'#F59E0B',livr:'#22C55E',autre:'#888'};
-  const byDay={};Object.entries(DATES).forEach(([id,d])=>{if(STATUTS[id]==='done')byDay[d]=(byDay[d]||0)+1;});
-  const top=CSV_DATA.filter(r=>gett(r)<=maxTime&&(STATUTS[r._id]||'todo')==='todo').map(r=>({...r,score:Math.round((r.note||3)*15+Math.max(0,80-gett(r)))})).sort((a,b)=>b.score-a.score).slice(0,5);
-  el.innerHTML=`
-  <div class="sg">
-    <div class="sc"><div class="v">${total}</div><div class="l">Total scrapés</div></div>
-    <div class="sc"><div class="v" style="color:var(--ac)">${inR}</div><div class="l">${TI[transport]} accessibles</div></div>
-    <div class="sc"><div class="v" style="color:var(--gn)">${done}</div><div class="l">CV déposés (${pct}%)</div></div>
-    <div class="sc"><div class="v" style="color:var(--yw)">${rl}</div><div class="l">À relancer</div></div>
-  </div>
-  <div class="card" style="padding:13px;margin-bottom:7px">
-    <div class="sec-lbl">Avancement</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:5px">
-      <div style="flex:1;height:6px;background:var(--s3);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--gn);border-radius:3px"></div></div>
-      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800">${pct}%</div>
+function toggleZC(id) { document.getElementById('zcb-'+id)?.classList.toggle('open'); }
+function tsm(id) {
+  ST[id]=NEXT[ST[id]||'todo'];
+  if(ST[id]==='done') DT[id]=new Date().toLocaleDateString('fr-FR');
+  save(); renderAll();
+  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[ST[id]]);
+}
+
+// ═══════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════
+function renderStats() {
+  const el = document.getElementById('stats');
+  const total=CSV_DATA.length, inR=CSV_DATA.filter(r=>gt(r)<=maxT).length;
+  const done=Object.values(ST).filter(s=>s==='done').length;
+  const rl=Object.values(ST).filter(s=>s==='relance').length;
+  const pct=total?Math.round(done/total*100):0;
+  const sc=sortedCL();
+  const secs=['food','retail','logis','livr','autre'];
+  const byDay={};
+  Object.entries(DT).forEach(([id,d])=>{ if(ST[id]==='done') byDay[d]=(byDay[d]||0)+1; });
+  const top = CSV_DATA
+    .filter(r=>gt(r)<=maxT&&(ST[r._id]||'todo')==='todo')
+    .map(r=>({...r,score:Math.round((r.note||3)*15+Math.max(0,80-gt(r)))}))
+    .sort((a,b)=>b.score-a.score).slice(0,5);
+
+  el.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="v">${total}</div><div class="l">TOTAL SCRAPÉS</div></div>
+      <div class="stat-box"><div class="v" style="color:var(--ac)">${inR}</div><div class="l">${TIC[transport].toUpperCase()} ACCESSIBLES</div></div>
+      <div class="stat-box"><div class="v" style="color:var(--gn)">${done}</div><div class="l">CV DÉPOSÉS</div></div>
+      <div class="stat-box"><div class="v" style="color:var(--yw)">${rl}</div><div class="l">À RELANCER</div></div>
     </div>
-  </div>
-  <div class="card" style="padding:13px;margin-bottom:7px">
-    <div class="sec-lbl">Par mode de transport (max ${maxTime}min)</div>
-    ${[{i:'🚶',l:'Pied',c:CSV_DATA.filter(r=>r.t_pied<=maxTime).length,col:'#FB923C'},{i:'🚴',l:'Vélo',c:CSV_DATA.filter(r=>r.t_velo<=maxTime).length,col:'#22C55E'},{i:'🚌',l:'Bus',c:CSV_DATA.filter(r=>r.t_bus<=maxTime).length,col:'#3B82F6'}].map(m=>`<div class="bi"><div class="br"><span>${m.i} ${m.l}</span><span style="color:var(--mu2)">${m.c} étab.</span></div><div class="bt"><div class="bf" style="width:${Math.round(m.c/total*100)}%;background:${m.col}"></div></div></div>`).join('')}
-  </div>
-  <div class="card" style="padding:13px;margin-bottom:7px">
-    <div class="sec-lbl">Zones (${s.length} créées)</div>
-    ${s.map((cl,idx)=>{const d=cd(cl),t=cl.members.length,p=Math.round(d/t*100);return`<div class="bi"><div class="br"><span style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${cl.color};display:inline-block"></span>Zone ${idx+1} · ${cl.distHome}km</span><span style="color:var(--mu2)">${d}/${t}</span></div><div class="bt"><div class="bf" style="width:${p}%;background:${cl.color}"></div></div></div>`;}).join('')}
-  </div>
-  <div class="card" style="padding:13px;margin-bottom:7px">
-    <div class="sec-lbl">Par secteur</div>
-    ${secs.map(s2=>{const t=CSV_DATA.filter(r=>r.secteur===s2).length,d=CSV_DATA.filter(r=>r.secteur===s2&&STATUTS[r._id]==='done').length;if(!t)return'';return`<div class="bi"><div class="br"><span>${SLBL[s2]}</span><span style="color:var(--mu2)">${d}/${t}</span></div><div class="bt"><div class="bf" style="width:${Math.round(d/t*100)}%;background:${scols[s2]}"></div></div></div>`;}).join('')}
-  </div>
-  ${Object.keys(byDay).length?`<div class="card" style="padding:13px;margin-bottom:7px"><div class="sec-lbl">Par jour</div>${Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,c])=>`<div class="bi"><div class="br"><span style="font-size:12px">${d}</span><span style="color:var(--mu2)">${c} CV</span></div><div class="bt"><div class="bf" style="width:${Math.min(100,c*15)}%;background:var(--bl)"></div></div></div>`).join('')}</div>`:''}
-  ${top.length?`<div class="card" style="padding:13px;margin-bottom:7px"><div class="sec-lbl">Top 5 ${TI[transport]}</div>${top.map((r,i)=>`<div class="top-item"><div class="top-n">${i+1}</div><div class="top-info"><div class="top-name">${r.nom||'?'}</div><div class="top-meta">${TI[transport]} ${gett(r)}min · ${r.dist_km}km · ⭐${r.note||'?'}</div></div><button class="bgps" style="padding:6px 9px;font-size:11px" onclick="window.open('${gpsu(r)}','_blank')">📍</button></div>`).join('')}</div>`:''}
-  <div class="pb"></div>`;
+
+    <div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Avancement global</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+        <div style="flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:var(--gn);border-radius:3px;transition:width .8s"></div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--gn)">${pct}%</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Par mode de transport (max ${maxT}min)</div>
+      ${[
+        {i:'🚶',l:'À pied',n:CSV_DATA.filter(r=>r.t_pied<=maxT).length,c:'var(--or)'},
+        {i:'🚴',l:'Vélo',n:CSV_DATA.filter(r=>r.t_velo<=maxT).length,c:'var(--gn)'},
+        {i:'🚌',l:'Bus',n:CSV_DATA.filter(r=>r.t_bus<=maxT).length,c:'var(--ac)'},
+      ].map(m=>`<div class="prog-item">
+        <div class="prog-row"><span>${m.i} ${m.l}</span><span style="color:var(--tx3);font-family:'Space Mono',monospace">${m.n}</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:${Math.round(m.n/total*100)}%;background:${m.c}"></div></div>
+      </div>`).join('')}
+    </div>
+
+    ${sc.length?`<div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Zones de proximité (${sc.length})</div>
+      ${sc.map((cl,idx)=>{const d=clDone(cl),t=cl.members.length,p=Math.round(d/t*100);return`<div class="prog-item">
+        <div class="prog-row">
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="width:7px;height:7px;border-radius:2px;background:${cl.col};display:inline-block"></span>
+            Zone ${idx+1} · ${cl.dh}km
+          </span>
+          <span style="color:var(--tx3);font-family:'Space Mono',monospace">${d}/${t}</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:${p}%;background:${cl.col}"></div></div>
+      </div>`;}).join('')}
+    </div>`:''}
+
+    <div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Par secteur</div>
+      ${secs.map(s=>{
+        const t=CSV_DATA.filter(r=>r.secteur===s).length;
+        const d=CSV_DATA.filter(r=>r.secteur===s&&ST[r._id]==='done').length;
+        if(!t) return '';
+        return `<div class="prog-item">
+          <div class="prog-row"><span>${SLBL[s]}</span><span style="color:var(--tx3);font-family:'Space Mono',monospace">${d}/${t}</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:${Math.round(d/t*100)}%;background:${SCOL[s]}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${Object.keys(byDay).length?`
+    <div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Activité par jour</div>
+      ${Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,c])=>`
+        <div class="prog-item">
+          <div class="prog-row"><span style="font-family:'Space Mono',monospace;font-size:11px">${d}</span><span style="color:var(--tx3)">+${c} CV</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:${Math.min(100,c*15)}%;background:var(--ac)"></div></div>
+        </div>`).join('')}
+    </div>`:''}
+
+    ${top.length?`
+    <div class="card" style="padding:15px;margin-bottom:8px">
+      <div class="section-title">Top 5 priorités ${TIC[transport]}</div>
+      ${top.map((r,i)=>`
+        <div class="top-row">
+          <div class="top-num">${i+1}</div>
+          <div class="top-info">
+            <div class="top-name">${r.nom||'?'}</div>
+            <div class="top-meta">${TIC[transport]}${gt(r)}min · ${r.dist_km}km · ⭐${r.note||'?'}</div>
+          </div>
+          <button class="btn-nav" style="padding:7px 10px;font-size:11px;box-shadow:none" onclick="window.open('${gpsu(r)}','_blank')">📍</button>
+        </div>`).join('')}
+    </div>`:''}
+    <div class="pb"></div>
+  `;
 }
 
-function updateRing(){
-  const total=CSV_DATA.length,done=Object.values(STATUTS).filter(s=>s==='done').length,pct=Math.round(done/total*100);
-  const C=87.9,offset=C-pct/100*C;
-  const rf=document.getElementById('rf');if(rf)rf.style.strokeDashoffset=offset;
-  const rp=document.getElementById('rp');if(rp)rp.textContent=pct+'%';
+// ═══════════════════════════════════════
+//  RING + HEADER
+// ═══════════════════════════════════════
+function updateRing() {
+  const total=CSV_DATA.length, done=Object.values(ST).filter(s=>s==='done').length;
+  const pct=Math.round(done/total*100), C=94.2, off=C-pct/100*C;
+  const rf=document.getElementById('rf'); if(rf) rf.style.strokeDashoffset=off;
+  const rp=document.getElementById('rp'); if(rp) rp.textContent=pct+'%';
   document.getElementById('ring').style.display='block';
-  document.getElementById('hinfo').innerHTML=`<div class="v">${done}/${total}</div><div class="l">déposés</div>`;
+  document.getElementById('hcount').innerHTML=`<div class="v">${done}/${total}</div><div class="l">déposés</div>`;
 }
 
-function goTab(tab){
-  activeTab=tab;
+// ═══════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════
+function goTab(t) {
+  tab=t;
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pg-'+tab).classList.add('on');
+  document.getElementById('pg-'+t).classList.add('on');
   document.querySelectorAll('[id^="ti-"]').forEach(e=>e.style.background='transparent');
-  const ti=document.getElementById('ti-'+tab);if(ti)ti.style.background='var(--ac)';
-  document.querySelectorAll('nav button').forEach(b=>{if((b.getAttribute('onclick')||'').includes("'"+tab+"'"))b.classList.add('on');});
-  if(tab==='map')renderMap();if(tab==='stats')renderStats();
+  const ti=document.getElementById('ti-'+t); if(ti) ti.style.background='var(--ac)';
+  document.querySelectorAll('nav button').forEach(b=>{ if((b.getAttribute('onclick')||'').includes("'"+t+"'")) b.classList.add('on'); });
+  if(t==='map') renderMap();
+  if(t==='stats') renderStats();
 }
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
-function resetData(){CSV_DATA.forEach(r=>{STATUTS[r._id]='todo';NOTES[r._id]='';DATES[r._id]='';});save();renderAll();toast('🔄 Reset fait');}
-function renderAll(){renderListe();if(activeTab==='map')renderMap();if(activeTab==='stats')renderStats();updateRing();}
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+function resetAll() {
+  CSV_DATA.forEach(r=>{ ST[r._id]='todo'; NO[r._id]=''; DT[r._id]=''; });
+  save(); renderAll(); toast('🔄 Reset effectué');
+}
+
+function renderAll() {
+  renderListe();
+  if(tab==='map') renderMap();
+  if(tab==='stats') renderStats();
+  updateRing();
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 loadSaved();
+document.querySelectorAll('.tt').forEach(b=>b.classList.remove('on'));
 document.getElementById('tt-'+transport).classList.add('on');
-document.querySelectorAll('.tt-btn').forEach(b=>{if(b.id!=='tt-'+transport)b.classList.remove('on');});
-document.getElementById('timeSlider').value=maxTime;
-document.getElementById('timeVal').textContent=maxTime+' min';
-buildClusters();renderAll();
+document.getElementById('tslider').value = maxT;
+document.getElementById('tval').textContent = maxT + ' min';
+buildCL();
+renderAll();
 </script>
 </body>
 </html>

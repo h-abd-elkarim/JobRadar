@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JobRadar">
+<link rel="manifest" href="manifest.json">
+<title>JobRadar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root {
+  --bg:#0A0A0A; --s1:#161616; --s2:#1F1F1F; --s3:#2A2A2A;
+  --bd:rgba(255,255,255,0.08); --bd2:rgba(255,255,255,0.14);
+  --tx:#F5F2EE; --mu:#666; --mu2:#999;
+  --ac:#FF4D1C; --gn:#22C55E; --yw:#F59E0B; --bl:#3B82F6; --rd:#EF4444;
+  --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:15px}
+#app{display:flex;flex-direction:column;height:100%}
+
+/* HEADER */
+header{
+  padding:calc(var(--st) + 12px) 16px 12px;
+  background:var(--bg);border-bottom:0.5px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.02em}
+.logo span{color:var(--ac)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr-stat{text-align:right;font-size:11px;color:var(--mu);line-height:1.4}
+.hdr-stat strong{color:var(--tx);font-size:13px;display:block}
+
+/* RING */
+.ring{position:relative;width:38px;height:38px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring .rt{fill:none;stroke:var(--s3);stroke-width:3}
+.ring .rf{fill:none;stroke:var(--ac);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .5s ease}
+.ring .rp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+
+/* NAV */
+nav{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-bottom:0.5px solid var(--bd);flex-shrink:0;background:var(--bg);
+  padding-bottom:var(--sb);
+}
+nav button{
+  background:none;border:none;color:var(--mu);padding:8px 4px 6px;
+  font-size:10px;font-family:'DM Sans',sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;
+}
+nav button .ni{font-size:19px}
+nav button.on{color:var(--ac)}
+.tind{height:2px;width:18px;background:transparent;border-radius:1px;transition:background .2s}
+nav button.on .tind{background:var(--ac)}
+
+/* PAGES */
+.pages{flex:1;overflow:hidden;position:relative}
+.pg{position:absolute;inset:0;overflow-y:auto;padding:14px 14px 0;display:none;-webkit-overflow-scrolling:touch}
+.pg.on{display:block}
+.pb{height:calc(20px + var(--sb))}
+
+/* MAP PAGE — no padding */
+#pg-map{padding:0}
+#mapbox{height:100%;width:100%}
+.map-overlay{
+  position:absolute;bottom:calc(12px + var(--sb));left:12px;right:12px;z-index:1000;
+  background:var(--s1);border-radius:16px;border:0.5px solid var(--bd2);
+  padding:14px 16px;
+}
+.map-overlay h3{font-size:14px;font-weight:500;margin-bottom:8px}
+.mo-stats{display:flex;gap:16px;margin-bottom:10px}
+.mo-stat .v{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+.mo-stat .l{font-size:10px;color:var(--mu);margin-top:1px}
+.btn-maps{
+  width:100%;background:var(--ac);color:#fff;border:none;border-radius:12px;
+  padding:12px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-maps:active{opacity:.85}
+
+/* CARDS */
+.card{background:var(--s1);border-radius:14px;border:0.5px solid var(--bd);margin-bottom:8px;overflow:hidden}
+.ch{padding:12px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.cb{padding:0 14px 12px;display:none}
+.cb.open{display:block}
+.sdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.d-food{background:var(--ac)} .d-retail{background:var(--bl)}
+.d-logis{background:var(--yw)} .d-livr{background:var(--gn)} .d-autre{background:var(--mu)}
+.ci{flex:1;min-width:0}
+.cn{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca{font-size:11px;color:var(--mu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.st{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.s-todo{background:var(--s3);color:var(--mu2)}
+.s-done{background:rgba(34,197,94,.15);color:var(--gn)}
+.s-relance{background:rgba(245,158,11,.15);color:var(--yw)}
+.s-nope{background:rgba(239,68,68,.12);color:var(--rd)}
+.tb{font-size:11px;color:var(--mu)}
+
+/* CARD DETAIL */
+.dg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px}
+.dc{background:var(--s2);border-radius:10px;padding:8px;text-align:center}
+.dc .v{font-size:15px;font-weight:500} .dc .l{font-size:10px;color:var(--mu);margin-top:2px}
+.vw{color:#FB923C} .vb{color:var(--gn)} .vbus{color:var(--bl)}
+.da{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.bgps{background:var(--ac);color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.btel{background:var(--s2);color:var(--tx);border:none;border-radius:10px;padding:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.ni2{background:var(--s2);border:0.5px solid var(--bd);border-radius:10px;padding:9px 12px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;resize:none;height:56px;width:100%}
+.ni2:focus{border-color:var(--ac)}
+.stop-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:10px;font-weight:700;margin-right:6px;flex-shrink:0}
+
+/* FILTERS */
+.sw{position:relative;margin-bottom:10px}
+.sw input{width:100%;background:var(--s1);border:0.5px solid var(--bd);border-radius:12px;padding:9px 14px 9px 36px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.sw input:focus{border-color:var(--ac)}
+.si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:15px}
+.fr{display:flex;gap:7px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.fr::-webkit-scrollbar{display:none}
+.fp{padding:5px 13px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;border:0.5px solid var(--bd);background:transparent;color:var(--mu);font-family:'DM Sans',sans-serif;flex-shrink:0}
+.fp.on{background:rgba(255,77,28,.15);color:var(--ac);border-color:var(--ac)}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sc{background:var(--s1);border-radius:14px;padding:12px 14px}
+.sc .v{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
+.sc .l{font-size:11px;color:var(--mu);margin-top:2px}
+.sec{font-size:11px;font-weight:500;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.bi{margin-bottom:8px}
+.br{display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-bottom:3px}
+.bt{height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* IMPORT */
+.iz{background:var(--s1);border-radius:14px;padding:28px 18px;text-align:center;margin-bottom:10px;position:relative;border:1px dashed var(--bd2)}
+.iz input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.iz .ii{font-size:38px;margin-bottom:8px}
+.iz .it{font-size:15px;font-weight:500;margin-bottom:5px}
+.iz .is{font-size:12px;color:var(--mu);line-height:1.5}
+.istep{display:flex;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--bd)}
+.istep:last-child{border-bottom:none}
+.isn{width:22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ist{font-size:12px;color:var(--mu);line-height:1.5}
+.ist strong{color:var(--tx)}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(72px + var(--sb));left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);color:var(--tx);padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap;border:0.5px solid var(--bd2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* INSTALL */
+.ibanner{display:none;background:var(--s1);border-radius:12px;padding:11px 13px;margin-bottom:10px;border:0.5px solid var(--ac);align-items:center;gap:9px}
+.ibanner.show{display:flex}
+.ibanner p{flex:1;font-size:12px;line-height:1.4}
+.ibanner button{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:7px 13px;font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+
+/* ROUTE STOPS LIST */
+.rsl{display:flex;flex-direction:column;gap:5px;margin:8px 0}
+.rsi{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--s2);border-radius:10px}
+.rsn{width:22px;height:22px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.rsn.done{background:rgba(34,197,94,.2);color:var(--gn)}
+.rsi-info{flex:1;min-width:0}
+.rsi-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rsi-meta{font-size:10px;color:var(--mu)}
+
+/* LEAFLET overrides */
+.leaflet-container{background:var(--bg) !important}
+.leaflet-popup-content-wrapper{background:var(--s1);color:var(--tx);border:0.5px solid var(--bd2);border-radius:12px;box-shadow:none}
+.leaflet-popup-tip{background:var(--s1)}
+.leaflet-popup-content{margin:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5}
+.leaflet-control-zoom a{background:var(--s1) !important;color:var(--tx) !important;border-color:var(--bd2) !important}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <div class="logo">Job<span>Radar</span></div>
+  <div class="hdr-right">
+    <div class="hdr-stat" id="hstat"></div>
+    <div class="ring" id="ring" style="display:none">
+      <svg width="38" height="38" viewBox="0 0 38 38">
+        <circle class="rt" cx="19" cy="19" r="16"/>
+        <circle class="rf" id="rf" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"/>
+      </svg>
+      <div class="rp" id="rp">0%</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="on" onclick="goTab('liste')"><span class="ni">🗂</span><div class="tind" id="ti-liste"></div><span>Liste</span></button>
+  <button onclick="goTab('map')"><span class="ni">🗺</span><div class="tind" id="ti-map"></div><span>Carte</span></button>
+  <button onclick="goTab('stats')"><span class="ni">📊</span><div class="tind" id="ti-stats"></div><span>Stats</span></button>
+  <button onclick="goTab('import')"><span class="ni">⬆</span><div class="tind" id="ti-import"></div><span>Import</span></button>
+</nav>
+
+<div class="pages">
+
+  <!-- LISTE -->
+  <div class="pg on" id="pg-liste">
+    <div class="ibanner" id="ib">
+      <p>📲 <strong>Installe l'appli</strong> sur ton écran d'accueil</p>
+      <button onclick="installPWA()">Installer</button>
+    </div>
+    <div class="sw"><span class="si">🔍</span><input type="text" id="q" placeholder="Rechercher..." oninput="renderListe()"></div>
+    <div class="fr">
+      <button class="fp on" onclick="setF('all',this)">Tous</button>
+      <button class="fp" onclick="setF('todo',this)">À faire</button>
+      <button class="fp" onclick="setF('done',this)">Déposés</button>
+      <button class="fp" onclick="setF('relance',this)">Relance</button>
+      <button class="fp" onclick="setF('walk',this)">🚶 Pied</button>
+      <button class="fp" onclick="setF('bike',this)">🚴 Vélo</button>
+      <button class="fp" onclick="setF('bus',this)">🚌 Bus</button>
+      <button class="fp" onclick="setF('food',this)">🍔</button>
+      <button class="fp" onclick="setF('retail',this)">🛒</button>
+      <button class="fp" onclick="setF('logis',this)">📦</button>
+    </div>
+    <div id="liste"></div>
+    <div class="pb"></div>
+  </div>
+
+  <!-- MAP -->
+  <div class="pg" id="pg-map">
+    <div id="mapbox"></div>
+    <div class="map-overlay" id="mo">
+      <h3>Itinéraire optimisé</h3>
+      <div class="mo-stats">
+        <div class="mo-stat"><div class="v" id="mo-stops">—</div><div class="l">arrêts</div></div>
+        <div class="mo-stat"><div class="v" id="mo-dist">—</div><div class="l">km total</div></div>
+        <div class="mo-stat"><div class="v" id="mo-time">—</div><div class="l">min estimés</div></div>
+      </div>
+      <div class="rsl" id="mo-list"></div>
+      <button class="btn-maps" id="mo-btn" onclick="openMapsRoute()">
+        📍 Ouvrir dans Google Maps
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="pg" id="pg-stats">
+    <div id="stats"></div>
+    <div class="pb"></div>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="pg" id="pg-import">
+    <div class="iz">
+      <input type="file" accept=".csv" onchange="loadCSV(event)">
+      <div class="ii">📂</div>
+      <div class="it">Importer le CSV</div>
+      <div class="is">jobs_rouen_itineraires.csv<br>généré par le script Python</div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div class="sec" style="margin-bottom:10px">Mode démo — sans CSV</div>
+      <p style="font-size:12px;color:var(--mu);margin-bottom:10px;line-height:1.5">Teste l'appli avec des données exemple de Rouen avant d'importer ton vrai fichier.</p>
+      <button class="btn-maps" onclick="loadDemo()">Charger données démo</button>
+    </div>
+    <div class="card" style="padding:14px;margin-top:8px">
+      <div class="sec" style="margin-bottom:10px">Comment ça marche</div>
+      <div class="istep"><div class="isn">1</div><div class="ist"><strong>Lance le script Python</strong> sur ton PC → génère le CSV</div></div>
+      <div class="istep"><div class="isn">2</div><div class="ist"><strong>Envoie le CSV sur ton tel</strong> via WhatsApp, Drive ou email</div></div>
+      <div class="istep"><div class="isn">3</div><div class="ist"><strong>Importe ici</strong> → l'algorithme calcule l'itinéraire optimal</div></div>
+      <div class="istep"><div class="isn">4</div><div class="ist"><strong>Sur le terrain</strong> : coche chaque stop visité, l'itinéraire se recalcule</div></div>
+    </div>
+    <div id="imp-status"></div>
+    <div class="pb"></div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const HOME = { lat: 49.4657, lon: 1.0832, name: 'Mont-Saint-Aignan' };
+const MAX_STOPS = 12; // max stops in one Maps route (Google limit ~10)
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let DATA = [], STATUTS = {}, NOTES = {}, DATES = {};
+let activeFilter = 'all', activeTab = 'liste';
+let map = null, routeLine = null, markers = [];
+let deferredPrompt = null;
+let optimizedRoute = [];
+
+const SN = { todo:'done', done:'relance', relance:'nope', nope:'todo' };
+const SL = { todo:'À faire', done:'Déposé ✓', relance:'Relancer', nope:'Ignoré' };
+const SC = { todo:'s-todo', done:'s-done', relance:'s-relance', nope:'s-nope' };
+const SCOL = { food:'#FF4D1C', retail:'#3B82F6', logis:'#F59E0B', livr:'#22C55E', autre:'#888' };
+const SLBL = { food:'🍔 Restauration', retail:'🛒 Retail', logis:'📦 Logistique', livr:'🚴 Livraison', autre:'💼 Autre' };
+
+// ══════════════════════════════════════════════════════
+//  PERSIST
+// ══════════════════════════════════════════════════════
+function save() {
+  try {
+    localStorage.setItem('jr2_data', JSON.stringify(DATA));
+    localStorage.setItem('jr2_st', JSON.stringify(STATUTS));
+    localStorage.setItem('jr2_no', JSON.stringify(NOTES));
+    localStorage.setItem('jr2_dt', JSON.stringify(DATES));
+  } catch(e) {}
+}
+function loadSaved() {
+  try {
+    const d = localStorage.getItem('jr2_data'); if (d) DATA = JSON.parse(d);
+    const s = localStorage.getItem('jr2_st');   if (s) STATUTS = JSON.parse(s);
+    const n = localStorage.getItem('jr2_no');   if (n) NOTES = JSON.parse(n);
+    const dt= localStorage.getItem('jr2_dt');   if (dt) DATES = JSON.parse(dt);
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════
+//  CSV
+// ══════════════════════════════════════════════════════
+function loadCSV(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      DATA = parseCSV(e.target.result);
+      initData();
+      save(); renderAll();
+      toast('✅ ' + DATA.length + ' établissements chargés !');
+      goTab('map');
+      document.getElementById('imp-status').innerHTML = `
+        <div style="background:rgba(34,197,94,.1);border-radius:12px;padding:14px;margin-top:8px;border:0.5px solid rgba(34,197,94,.3);text-align:center">
+          <div style="font-size:18px;margin-bottom:4px">✅</div>
+          <div style="font-size:14px;font-weight:500;color:var(--gn)">${DATA.length} établissements importés</div>
+        </div>`;
+    } catch(err) { toast('❌ Erreur lecture CSV'); }
+  };
+  r.readAsText(f, 'utf-8');
+}
+
+function parseCSV(txt) {
+  const sep = txt.includes('\r\n') ? '\r\n' : '\n';
+  const lines = txt.trim().split(sep);
+  const hdrs = splitL(lines[0]);
+  return lines.slice(1).filter(l=>l.trim()).map((l,i) => {
+    const v = splitL(l); const o = {_id:i};
+    hdrs.forEach((h,j) => o[h.trim()] = (v[j]||'').replace(/^"|"$/g,'').trim());
+    return o;
+  });
+}
+function splitL(line) {
+  const r=[]; let c='',q=false;
+  for (const ch of line) {
+    if (ch==='"'){q=!q;continue}
+    if (ch===','&&!q){r.push(c);c=''}else c+=ch;
+  }
+  r.push(c); return r;
+}
+
+function initData() {
+  DATA.forEach((row,i) => {
+    row._id = i;
+    row._sec = detectSec(row.categorie_recherche||row.categorie_lieu||'');
+    if (!STATUTS[i]) STATUTS[i] = 'todo';
+    if (!NOTES[i])   NOTES[i]   = '';
+    row._lat = parseFloat(row.lat)||null;
+    row._lon = parseFloat(row.lon)||null;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  DEMO DATA
+// ══════════════════════════════════════════════════════
+function loadDemo() {
+  DATA = [
+    {nom:"McDonald's Rouen Centre",adresse:"12 Rue du Général Leclerc, Rouen",telephone:"02 35 88 00 10",site_web:"mcdonalds.fr",note:"4.1",nb_avis:"847",lat:"49.4430",lon:"1.0920",categorie_recherche:"restauration rapide Rouen",duree_pied_min:"22",duree_velo_min:"9",duree_bus_min:"15",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Carrefour Market St-Étienne",adresse:"45 Av. du Madrillet, Saint-Étienne-du-Rouvray",telephone:"02 32 95 20 00",site_web:"carrefour.fr",note:"3.8",nb_avis:"512",lat:"49.3890",lon:"1.0990",categorie_recherche:"Carrefour Saint-Étienne-du-Rouvray",duree_pied_min:"",duree_velo_min:"38",duree_bus_min:"28",meilleur_mode:"Bus",lien_google_maps_itineraire:""},
+    {nom:"Lidl Maromme",adresse:"2 Rue de la République, Maromme",telephone:"",site_web:"lidl.fr",note:"4.0",nb_avis:"334",lat:"49.4900",lon:"1.0580",categorie_recherche:"Lidl Maromme",duree_pied_min:"28",duree_velo_min:"13",duree_bus_min:"20",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Burger King Rouen",adresse:"Place du Vieux-Marché, Rouen",telephone:"02 35 15 30 30",site_web:"burgerking.fr",note:"3.9",nb_avis:"1203",lat:"49.4420",lon:"1.0870",categorie_recherche:"Burger King Rouen",duree_pied_min:"25",duree_velo_min:"11",duree_bus_min:"20",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"DHL Express Rouen",adresse:"ZI de la Vatine, Mont-Saint-Aignan",telephone:"",site_web:"dhl.fr",note:"3.6",nb_avis:"89",lat:"49.4700",lon:"1.1000",categorie_recherche:"DHL Rouen",duree_pied_min:"15",duree_velo_min:"7",duree_bus_min:"12",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Décathlon Petit-Quevilly",adresse:"Centre Commercial Grand Cap, Petit-Quevilly",telephone:"02 35 63 20 00",site_web:"decathlon.fr",note:"4.3",nb_avis:"2341",lat:"49.4190",lon:"1.0500",categorie_recherche:"Décathlon Petit-Quevilly",duree_pied_min:"",duree_velo_min:"28",duree_bus_min:"32",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Manpower Rouen",adresse:"15 Rue Jeanne d'Arc, Rouen",telephone:"02 35 71 50 00",site_web:"manpower.fr",note:"3.7",nb_avis:"156",lat:"49.4440",lon:"1.0940",categorie_recherche:"agence intérim Rouen",duree_pied_min:"30",duree_velo_min:"14",duree_bus_min:"22",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"KFC Rouen Saint-Sever",adresse:"Rue de l'Avalasse, Rouen",telephone:"",site_web:"kfc.fr",note:"3.5",nb_avis:"987",lat:"49.4360",lon:"1.0920",categorie_recherche:"KFC Rouen",duree_pied_min:"35",duree_velo_min:"16",duree_bus_min:"25",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Action Grand-Quevilly",adresse:"Rue des Chardonnerets, Grand-Quevilly",telephone:"",site_web:"action.com",note:"4.2",nb_avis:"1876",lat:"49.4100",lon:"1.0400",categorie_recherche:"Action Grand-Quevilly",duree_pied_min:"",duree_velo_min:"38",duree_bus_min:"35",meilleur_mode:"Bus",lien_google_maps_itineraire:""},
+    {nom:"Subway Rouen Centre",adresse:"22 Rue du Gros-Horloge, Rouen",telephone:"",site_web:"subway.com",note:"3.8",nb_avis:"445",lat:"49.4425",lon:"1.0895",categorie_recherche:"Subway Rouen",duree_pied_min:"24",duree_velo_min:"10",duree_bus_min:"18",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+    {nom:"Chronopost Sotteville",adresse:"Rue Alfred Kastler, Sotteville-lès-Rouen",telephone:"",site_web:"chronopost.fr",note:"3.4",nb_avis:"203",lat:"49.4050",lon:"1.0940",categorie_recherche:"Chronopost Rouen",duree_pied_min:"",duree_velo_min:"42",duree_bus_min:"38",meilleur_mode:"Bus",lien_google_maps_itineraire:""},
+    {nom:"Intermarché Maromme",adresse:"10 Rue Edouard Vaillant, Maromme",telephone:"02 35 74 55 55",site_web:"intermarche.fr",note:"3.9",nb_avis:"678",lat:"49.4850",lon:"1.0650",categorie_recherche:"Intermarché Maromme",duree_pied_min:"32",duree_velo_min:"15",duree_bus_min:"22",meilleur_mode:"Vélo",lien_google_maps_itineraire:""},
+  ];
+  initData(); save(); renderAll();
+  toast('✅ Données démo chargées !');
+  goTab('map');
+}
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function detectSec(cat) {
+  const c = (cat||'').toLowerCase();
+  if (/restaurant|burger|kfc|pizza|boulan|sandwi|kebab|sushi|mcdonald|subway/.test(c)) return 'food';
+  if (/carrefour|leclerc|lidl|aldi|magasin|vêtement|h&m|zara|décathlon|fnac|boulanger|pharmacie|primark|monoprix|action|gifi|retail|intermarché/.test(c)) return 'retail';
+  if (/entrepôt|logistique|distribution|transporteur|messagerie|grossiste|amazon|chronopost|dhl|dpd|gls|colissimo/.test(c)) return 'logis';
+  if (/livreur|deliveroo|uber|just eat|manutention|déménag|intérim|manpower|adecco|randstad/.test(c)) return 'livr';
+  return 'autre';
+}
+
+function btime(r) {
+  const v = [r.duree_pied_min,r.duree_velo_min,r.duree_bus_min].map(x=>parseFloat(x)||999);
+  return Math.min(...v);
+}
+function bmode(r) {
+  const p=parseFloat(r.duree_pied_min)||999, v=parseFloat(r.duree_velo_min)||999, b=parseFloat(r.duree_bus_min)||999;
+  const m=Math.min(p,v,b);
+  if (m===p&&p<999) return {l:'À pied',i:'🚶',min:Math.round(p)};
+  if (m===v&&v<999) return {l:'Vélo',  i:'🚴',min:Math.round(v)};
+  if (m===b&&b<999) return {l:'Bus',   i:'🚌',min:Math.round(b)};
+  return {l:'?',i:'📍',min:'?'};
+}
+function gpsu(r) {
+  if (r.lien_google_maps_itineraire&&r.lien_google_maps_itineraire!=='None'&&r.lien_google_maps_itineraire.startsWith('http'))
+    return r.lien_google_maps_itineraire;
+  if (r._lat&&r._lon) return `https://www.google.com/maps/dir/?api=1&destination=${r._lat},${r._lon}`;
+  return `https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}`;
+}
+
+// ══════════════════════════════════════════════════════
+//  TSP — Nearest Neighbor + 2-opt
+// ══════════════════════════════════════════════════════
+function dist(a, b) {
+  const R = 6371, dLat = (b.lat-a.lat)*Math.PI/180, dLon = (b.lon-a.lon)*Math.PI/180;
+  const x = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+
+function tsp(points) {
+  if (points.length <= 1) return points;
+  // Nearest Neighbor from HOME
+  const unvisited = [...points];
+  const route = [];
+  let cur = { lat: HOME.lat, lon: HOME.lon };
+  while (unvisited.length) {
+    let best = 0, bestD = Infinity;
+    unvisited.forEach((p,i) => {
+      const d = dist(cur, p);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    route.push(unvisited[best]);
+    cur = unvisited[best];
+    unvisited.splice(best, 1);
+  }
+  // 2-opt improvement
+  let improved = true;
+  while (improved) {
+    improved = false;
+    for (let i = 0; i < route.length - 1; i++) {
+      for (let j = i + 2; j < route.length; j++) {
+        const a = i === 0 ? { lat: HOME.lat, lon: HOME.lon } : route[i-1];
+        const before = dist(a, route[i]) + dist(route[j-1], route[j]||{lat:HOME.lat,lon:HOME.lon});
+        const after  = dist(a, route[j-1]) + dist(route[i], route[j]||{lat:HOME.lat,lon:HOME.lon});
+        if (after < before - 0.01) {
+          route.splice(i, j-i, ...route.slice(i,j).reverse());
+          improved = true;
+        }
+      }
+    }
+  }
+  return route;
+}
+
+function computeRoute() {
+  const todo = DATA.filter(r => (STATUTS[r._id]||'todo') === 'todo' && r._lat && r._lon)
+    .sort((a,b) => btime(a)-btime(b))
+    .slice(0, MAX_STOPS);
+  optimizedRoute = tsp(todo.map(r => ({ ...r, lat: r._lat, lon: r._lon })));
+  return optimizedRoute;
+}
+
+function routeStats() {
+  if (!optimizedRoute.length) return { stops:0, dist:0, time:0 };
+  let d = dist({ lat:HOME.lat, lon:HOME.lon }, optimizedRoute[0]);
+  for (let i = 0; i < optimizedRoute.length-1; i++) d += dist(optimizedRoute[i], optimizedRoute[i+1]);
+  const t = optimizedRoute.reduce((s,r) => s + (btime(r) < 999 ? btime(r) : 20), 0);
+  return { stops: optimizedRoute.length, dist: d.toFixed(1), time: Math.round(t) };
+}
+
+function openMapsRoute() {
+  if (!optimizedRoute.length) { toast('Aucun établissement à visiter'); return; }
+  const waypoints = optimizedRoute.slice(0,9).map(r => `${r._lat},${r._lon}`).join('/');
+  const url = `https://www.google.com/maps/dir/${HOME.lat},${HOME.lon}/${waypoints}`;
+  window.open(url, '_blank');
+}
+
+// ══════════════════════════════════════════════════════
+//  MAP
+// ══════════════════════════════════════════════════════
+function initMap() {
+  if (map) return;
+  map = L.map('mapbox', { zoomControl:true, attributionControl:false })
+    .setView([HOME.lat, HOME.lon], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19
+  }).addTo(map);
+  // Home marker
+  L.circleMarker([HOME.lat, HOME.lon], {
+    radius:10, fillColor:'#FF4D1C', color:'#fff', weight:2, fillOpacity:1
+  }).bindPopup('<strong>🏠 Chez toi</strong><br>Mont-Saint-Aignan').addTo(map);
+}
+
+function renderMap() {
+  initMap();
+  // Clear old
+  markers.forEach(m => m.remove());
+  markers = [];
+  if (routeLine) { routeLine.remove(); routeLine = null; }
+
+  const route = computeRoute();
+  const stats = routeStats();
+
+  // Route polyline HOME → stops → HOME
+  if (route.length) {
+    const latlngs = [[HOME.lat, HOME.lon], ...route.map(r=>[r._lat,r._lon])];
+    routeLine = L.polyline(latlngs, {
+      color:'#FF4D1C', weight:3, opacity:0.8, dashArray:'8 6'
+    }).addTo(map);
+    map.fitBounds(routeLine.getBounds(), { padding:[60,60] });
+  }
+
+  // All markers
+  DATA.forEach(r => {
+    if (!r._lat || !r._lon) return;
+    const st = STATUTS[r._id]||'todo';
+    const routeIdx = route.findIndex(x => x._id === r._id);
+    const isInRoute = routeIdx >= 0;
+    const bm = bmode(r);
+    const col = st==='done' ? '#22C55E' : st==='nope' ? '#444' : (isInRoute ? '#FF4D1C' : SCOL[r._sec]||'#888');
+    const opacity = st==='nope' ? 0.25 : 1;
+    const radius = isInRoute ? 9 : 7;
+
+    const m = L.circleMarker([r._lat, r._lon], {
+      radius, fillColor:col, color:'#0A0A0A', weight:1.5, fillOpacity:opacity
+    });
+
+    const popupHtml = `
+      <strong>${r.nom||'?'}</strong><br>
+      <span style="color:#888;font-size:11px">${r.adresse||''}</span><br><br>
+      ${bm.i} ${bm.min} min · ⭐ ${r.note||'—'}<br><br>
+      ${isInRoute ? `<span style="color:#FF4D1C;font-weight:500">Stop #${routeIdx+1} dans l'itinéraire</span><br><br>` : ''}
+      <button onclick="toggleStatusMap(${r._id})" style="background:${col};color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;width:100%">
+        ${SL[st]}
+      </button>
+      <a href="${gpsu(r)}" target="_blank" style="display:block;margin-top:6px;text-align:center;font-size:11px;color:#FF4D1C">Naviguer 📍</a>
+    `;
+
+    m.bindPopup(popupHtml);
+    if (isInRoute) {
+      m.bindTooltip(String(routeIdx+1), {
+        permanent:true, direction:'center', className:'',
+        offset:[0,0]
+      });
+    }
+    m.addTo(map);
+    markers.push(m);
+  });
+
+  // Overlay update
+  document.getElementById('mo-stops').textContent = stats.stops;
+  document.getElementById('mo-dist').textContent  = stats.dist + ' km';
+  document.getElementById('mo-time').textContent  = stats.time + ' min';
+
+  const listEl = document.getElementById('mo-list');
+  listEl.innerHTML = route.slice(0,6).map((r,i) => {
+    const bm = bmode(r);
+    const done = STATUTS[r._id]==='done';
+    return `<div class="rsi">
+      <div class="rsn ${done?'done':''}">${done?'✓':(i+1)}</div>
+      <div class="rsi-info">
+        <div class="rsi-name" style="${done?'text-decoration:line-through;opacity:.5':''}">${r.nom||'?'}</div>
+        <div class="rsi-meta">${bm.i} ${bm.min} min · ${r.adresse?.split(',')[1]?.trim()||''}</div>
+      </div>
+    </div>`;
+  }).join('') + (route.length > 6 ? `<div style="font-size:11px;color:var(--mu);padding:4px 10px">+ ${route.length-6} autres stops</div>` : '');
+}
+
+function toggleStatusMap(id) {
+  STATUTS[id] = SN[STATUTS[id]||'todo'];
+  if (STATUTS[id]==='done') DATES[id] = new Date().toLocaleDateString('fr-FR');
+  save();
+  renderAll();
+  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 À relancer',nope:'❌ Ignoré'}[STATUTS[id]]);
+}
+
+// ══════════════════════════════════════════════════════
+//  LISTE
+// ══════════════════════════════════════════════════════
+function setF(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.fp').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderListe();
+}
+
+function getFiltered() {
+  const q = (document.getElementById('q')?.value||'').toLowerCase();
+  return DATA.filter(r => {
+    if (q && !(r.nom||'').toLowerCase().includes(q) && !(r.adresse||'').toLowerCase().includes(q)) return false;
+    const st = STATUTS[r._id]||'todo', bm = bmode(r);
+    if (activeFilter==='todo'   && st!=='todo') return false;
+    if (activeFilter==='done'   && st!=='done') return false;
+    if (activeFilter==='relance'&& st!=='relance') return false;
+    if (activeFilter==='walk'   && bm.l!=='À pied') return false;
+    if (activeFilter==='bike'   && bm.l!=='Vélo') return false;
+    if (activeFilter==='bus'    && bm.l!=='Bus') return false;
+    if (activeFilter==='food'   && r._sec!=='food') return false;
+    if (activeFilter==='retail' && r._sec!=='retail') return false;
+    if (activeFilter==='logis'  && r._sec!=='logis') return false;
+    return true;
+  }).sort((a,b) => btime(a)-btime(b));
+}
+
+function renderListe() {
+  const el = document.getElementById('liste');
+  if (!DATA.length) {
+    el.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--mu)"><div style="font-size:40px;opacity:.3;margin-bottom:10px">📂</div>Importe ton CSV pour démarrer</div>`;
+    return;
+  }
+  const f = getFiltered();
+  if (!f.length) {
+    el.innerHTML = `<div style="text-align:center;padding:32px;color:var(--mu)">Aucun résultat</div>`;
+    return;
+  }
+  const routeIds = new Set(optimizedRoute.map(r=>r._id));
+  el.innerHTML = f.map(r => {
+    const st = STATUTS[r._id]||'todo', bm = bmode(r);
+    const inRoute = routeIds.has(r._id);
+    const ri = inRoute ? optimizedRoute.findIndex(x=>x._id===r._id) : -1;
+    return `
+    <div class="card" id="card-${r._id}">
+      <div class="ch" onclick="toggleCard(${r._id})">
+        <div class="sdot d-${r._sec}"></div>
+        <div class="ci">
+          <div class="cn">
+            ${inRoute?`<span class="stop-badge">${ri+1}</span>`:''}${r.nom||'Sans nom'}
+          </div>
+          <div class="ca">${r.adresse||'Adresse inconnue'}</div>
+        </div>
+        <div class="cr">
+          <button class="st ${SC[st]}" onclick="event.stopPropagation();toggleSt(${r._id})">${SL[st]}</button>
+          <div class="tb">${bm.i} ${bm.min} min</div>
+        </div>
+      </div>
+      <div class="cb" id="cb-${r._id}">
+        <div class="dg">
+          <div class="dc"><div class="v vw">${Math.round(parseFloat(r.duree_pied_min)||0)||'—'}</div><div class="l">🚶 min</div></div>
+          <div class="dc"><div class="v vb">${Math.round(parseFloat(r.duree_velo_min)||0)||'—'}</div><div class="l">🚴 min</div></div>
+          <div class="dc"><div class="v vbus">${Math.round(parseFloat(r.duree_bus_min)||0)||'—'}</div><div class="l">🚌 min</div></div>
+        </div>
+        <div class="da">
+          <button class="bgps" onclick="window.open('${gpsu(r)}','_blank')">📍 Naviguer</button>
+          ${r.telephone&&r.telephone!=='None'
+            ? `<button class="btel" onclick="window.open('tel:${r.telephone}')">📞 ${r.telephone}</button>`
+            : `<button class="btel" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}','_blank')">🗺 Maps</button>`}
+        </div>
+        ${r.note&&r.note!=='None'?`<div style="font-size:11px;color:var(--mu);margin-bottom:8px">⭐ ${r.note} · ${r.nb_avis||''}</div>`:''}
+        <textarea class="ni2" placeholder="Notes perso..." onchange="saveNote(${r._id},this.value)">${NOTES[r._id]||''}</textarea>
+        ${DATES[r._id]?`<div style="font-size:10px;color:var(--mu);margin-top:5px">Visité le ${DATES[r._id]}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  updateRing();
+}
+
+function toggleCard(id) {
+  document.getElementById('cb-'+id)?.classList.toggle('open');
+}
+function toggleSt(id) {
+  STATUTS[id] = SN[STATUTS[id]||'todo'];
+  if (STATUTS[id]==='done') DATES[id] = new Date().toLocaleDateString('fr-FR');
+  save(); renderAll();
+  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[STATUTS[id]]);
+}
+function saveNote(id,v) { NOTES[id]=v; save(); }
+
+// ══════════════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════════════
+function renderStats() {
+  const el = document.getElementById('stats');
+  if (!DATA.length) {
+    el.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--mu)"><div style="font-size:40px;opacity:.3;margin-bottom:10px">📊</div>Importe ton CSV d'abord</div>`;
+    return;
+  }
+  const total = DATA.length;
+  const done  = Object.values(STATUTS).filter(s=>s==='done').length;
+  const rl    = Object.values(STATUTS).filter(s=>s==='relance').length;
+  const pct   = total?Math.round(done/total*100):0;
+  const secs  = ['food','retail','logis','livr','autre'];
+  const scols = { food:'#FF4D1C', retail:'#3B82F6', logis:'#F59E0B', livr:'#22C55E', autre:'#888' };
+
+  const byDay = {};
+  Object.entries(DATES).forEach(([id,date]) => {
+    if (STATUTS[id]==='done') byDay[date]=(byDay[date]||0)+1;
+  });
+
+  const top = DATA.map(r => {
+    const n = parseFloat(r.note)||3, t = btime(r);
+    return { ...r, score: Math.round(n*15 + (t<999?Math.max(0,80-t):0)) };
+  }).filter(r=>(STATUTS[r._id]||'todo')==='todo').sort((a,b)=>b.score-a.score).slice(0,5);
+
+  el.innerHTML = `
+    <div class="sg">
+      <div class="sc"><div class="v">${total}</div><div class="l">Total scrapés</div></div>
+      <div class="sc"><div class="v" style="color:var(--gn)">${done}</div><div class="l">CV déposés (${pct}%)</div></div>
+      <div class="sc"><div class="v" style="color:var(--yw)">${rl}</div><div class="l">À relancer</div></div>
+      <div class="sc"><div class="v" style="color:var(--ac)">${total-done}</div><div class="l">Restants</div></div>
+    </div>
+
+    <div class="card" style="padding:14px;margin-bottom:8px">
+      <div class="sec">Avancement global</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:var(--gn);border-radius:4px;transition:width .6s"></div>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800">${pct}%</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px;margin-bottom:8px">
+      <div class="sec">Par secteur</div>
+      ${secs.map(s => {
+        const t=DATA.filter(r=>r._sec===s).length, d=DATA.filter(r=>r._sec===s&&STATUTS[r._id]==='done').length;
+        if(!t) return '';
+        return `<div class="bi">
+          <div class="br"><span>${SLBL[s]}</span><span style="color:var(--mu)">${d}/${t}</span></div>
+          <div class="bt"><div class="bf" style="width:${Math.round(d/t*100)}%;background:${scols[s]}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${Object.keys(byDay).length ? `
+    <div class="card" style="padding:14px;margin-bottom:8px">
+      <div class="sec">Activité par jour</div>
+      ${Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,c])=>`
+        <div class="bi">
+          <div class="br"><span style="font-size:12px">${d}</span><span style="color:var(--mu)">${c} CV</span></div>
+          <div class="bt"><div class="bf" style="width:${Math.min(100,c*20)}%;background:var(--bl)"></div></div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    ${top.length ? `
+    <div class="card" style="padding:14px;margin-bottom:8px">
+      <div class="sec">Top 5 à prioriser maintenant</div>
+      ${top.map((r,i)=>{
+        const bm=bmode(r);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--bd)">
+          <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--ac);width:20px">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nom||'?'}</div>
+            <div style="font-size:11px;color:var(--mu)">${bm.i} ${bm.min} min · score ${r.score}</div>
+          </div>
+          <button class="bgps" style="padding:7px 10px;font-size:12px" onclick="window.open('${gpsu(r)}','_blank')">📍</button>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+    <div class="pb"></div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+//  RING
+// ══════════════════════════════════════════════════════
+function updateRing() {
+  if (!DATA.length) return;
+  const done = Object.values(STATUTS).filter(s=>s==='done').length;
+  const pct  = Math.round(done/DATA.length*100);
+  const C = 100.5, offset = C - pct/100*C;
+  document.getElementById('rf').style.strokeDashoffset = offset;
+  document.getElementById('rp').textContent = pct+'%';
+  document.getElementById('ring').style.display = 'block';
+  const hs = document.getElementById('hstat');
+  hs.innerHTML = `<strong>${done}/${DATA.length}</strong>déposés`;
+}
+
+// ══════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════
+function goTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+tab).classList.add('on');
+  document.querySelectorAll('[id^="ti-"]').forEach(e=>e.style.background='transparent');
+  const ti = document.getElementById('ti-'+tab);
+  if (ti) ti.style.background='var(--ac)';
+  document.querySelectorAll('nav button').forEach(b=>{
+    if ((b.getAttribute('onclick')||'').includes("'"+tab+"'")) b.classList.add('on');
+  });
+  if (tab==='map')   { renderMap(); }
+  if (tab==='stats') renderStats();
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST / INSTALL
+// ══════════════════════════════════════════════════════
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt=e;
+  document.getElementById('ib').classList.add('show');
+});
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('ib').classList.remove('show'); });
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER ALL
+// ══════════════════════════════════════════════════════
+function renderAll() {
+  renderListe();
+  if (activeTab==='map')   renderMap();
+  if (activeTab==='stats') renderStats();
+  updateRing();
+}
+
+// SW
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// INIT
+loadSaved();
+if (DATA.length) { initData(); renderAll(); }
+else renderListe();
+</script>
+</body>
+</html>

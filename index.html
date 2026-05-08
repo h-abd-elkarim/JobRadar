@@ -2,221 +2,193 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#07070A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JobRadar">
 <link rel="manifest" href="manifest.json">
 <title>JobRadar</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root {
-  --bg:#07070A; --s1:#0F0F14; --s2:#17171E; --s3:#1F1F28; --s4:#27273300;
-  --bd:rgba(255,255,255,0.06); --bd2:rgba(255,255,255,0.10); --bd3:rgba(255,255,255,0.15);
-  --tx:#F0ECF8; --tx2:#9994AA; --tx3:#4A4658;
-  --ac:#6366F1; --ac2:#818CF8; --acbg:rgba(99,102,241,0.12);
-  --gn:#34D399; --gnbg:rgba(52,211,153,0.12);
-  --yw:#FBBF24; --ywbg:rgba(251,191,36,0.12);
-  --rd:#F87171; --rdbg:rgba(248,113,113,0.12);
+:root{
+  --bg:#07070A;--s1:#0F0F14;--s2:#17171E;--s3:#1F1F28;--s4:#27273300;
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.10);--bd3:rgba(255,255,255,0.16);
+  --tx:#F0ECF8;--tx2:#9994AA;--tx3:#4A4658;
+  --ac:#6366F1;--ac2:#818CF8;--acbg:rgba(99,102,241,0.12);
+  --gn:#34D399;--gnbg:rgba(52,211,153,0.12);
+  --yw:#FBBF24;--ywbg:rgba(251,191,36,0.12);
+  --rd:#F87171;--rdbg:rgba(248,113,113,0.12);
   --or:#FB923C;
-  --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+  --sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Geist',sans-serif}
 #app{display:flex;flex-direction:column;height:100%}
 
 /* HEADER */
-header{
-  padding:calc(var(--st)+14px) 16px 12px;
-  background:rgba(7,7,10,0.96);backdrop-filter:blur(20px);
-  border-bottom:0.5px solid var(--bd2);
-  display:flex;align-items:center;gap:10px;flex-shrink:0;
-}
-.logo{font-family:'Geist Mono',monospace;font-size:17px;font-weight:600;flex-shrink:0;letter-spacing:-0.03em}
-.logo-ac{color:var(--ac2)}
-
-/* TRANSPORT PILL */
+header{padding:calc(var(--st)+14px) 16px 12px;background:rgba(7,7,10,0.96);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--bd2);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo{font-family:'Geist Mono',monospace;font-size:17px;font-weight:700;flex-shrink:0;letter-spacing:-0.03em}
+.logo em{font-style:normal;color:var(--ac2)}
 .tpill{display:flex;background:var(--s2);border-radius:10px;padding:3px;border:0.5px solid var(--bd2);flex-shrink:0}
-.tp{padding:5px 11px;border-radius:8px;border:none;background:transparent;color:var(--tx3);font-size:12px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
-.tp.on{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(99,102,241,0.35)}
-
+.tp{padding:5px 10px;border-radius:8px;border:none;background:transparent;color:var(--tx3);font-size:12px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tp.on{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(99,102,241,0.4)}
 .hdr-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.done-pill{background:var(--gnbg);border:0.5px solid rgba(52,211,153,0.2);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--gn);font-family:'Geist Mono',monospace;display:none}
+.progress-pill{display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:20px;padding:5px 11px;border:0.5px solid var(--bd2)}
+.pp-ring{position:relative;width:22px;height:22px;flex-shrink:0}
+.pp-ring svg{transform:rotate(-90deg)}
+.ppr-t{fill:none;stroke:var(--s4);stroke-width:3}
+.ppr-f{fill:none;stroke:var(--gn);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .8s}
+.pp-ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:var(--gn);font-family:'Geist Mono',monospace}
+.pp-txt{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;color:var(--tx2)}
 
 /* NAV */
-nav{display:grid;grid-template-columns:repeat(3,1fr);border-top:0.5px solid var(--bd2);flex-shrink:0;background:rgba(7,7,10,0.97);backdrop-filter:blur(20px);padding-bottom:var(--sb);order:99}
-nav button{background:none;border:none;color:var(--tx3);padding:10px 4px 8px;font-size:11px;font-weight:600;font-family:'Geist',sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:color .2s;letter-spacing:0.01em}
-.ni{font-size:20px}
-.tind{height:2px;width:20px;background:transparent;border-radius:1px;transition:background .2s}
+nav{display:grid;grid-template-columns:repeat(4,1fr);border-top:0.5px solid var(--bd2);flex-shrink:0;background:rgba(7,7,10,0.97);backdrop-filter:blur(20px);padding-bottom:var(--sb);order:99}
+nav button{background:none;border:none;color:var(--tx3);padding:10px 4px 8px;font-size:10px;font-weight:600;font-family:'Geist',sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:color .2s;letter-spacing:0.01em}
+.ni{font-size:19px}
+.tind{height:2px;width:18px;background:transparent;border-radius:1px;transition:background .2s}
 nav button.on{color:var(--ac2)}
 nav button.on .tind{background:var(--ac)}
 
 /* PAGES */
 .pages{flex:1;overflow:hidden;position:relative}
-.pg{position:absolute;inset:0;overflow-y:auto;padding:0;display:none;-webkit-overflow-scrolling:touch}
+.pg{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none}
 .pg.on{display:block}
+.pg-pad{padding:14px}
 #pg-map{padding:0}
+.pb{height:calc(20px + var(--sb))}
 
-/* ── PAGE LISTE ── */
-#pg-liste{padding:14px}
-.search-bar{
-  display:flex;align-items:center;gap:8px;
-  background:var(--s1);border:0.5px solid var(--bd2);
-  border-radius:14px;padding:10px 14px;margin-bottom:10px;
+/* ════════════════════════════
+   PAGE 1 : AUJOURD'HUI
+   ════════════════════════════ */
+.today-hero{
+  background:linear-gradient(135deg,rgba(99,102,241,0.15) 0%,rgba(99,102,241,0.04) 100%);
+  border:0.5px solid rgba(99,102,241,0.25);
+  border-radius:20px;padding:18px;margin-bottom:12px;
+  position:relative;overflow:hidden;
 }
-.search-bar input{flex:1;background:none;border:none;color:var(--tx);font-family:'Geist',sans-serif;font-size:14px;outline:none}
-.search-bar input::placeholder{color:var(--tx3)}
+.today-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(99,102,241,0.1);pointer-events:none}
+.th-label{font-size:10px;font-weight:700;color:var(--ac2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.th-title{font-size:22px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.th-sub{font-size:13px;color:var(--tx3);margin-bottom:14px}
+.th-stats{display:flex;gap:16px;margin-bottom:14px}
+.th-stat .v{font-family:'Geist Mono',monospace;font-size:20px;font-weight:700}
+.th-stat .l{font-size:10px;color:var(--tx3);margin-top:1px;font-weight:600}
+.th-btn{display:flex;gap:8px}
+.btn-start{flex:1;background:var(--ac);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;font-family:'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 16px rgba(99,102,241,0.4)}
+.btn-start:active{opacity:.85}
+.btn-adjust{background:var(--s2);color:var(--tx2);border:0.5px solid var(--bd2);border-radius:12px;padding:12px 14px;font-size:14px;font-family:'Geist',sans-serif;cursor:pointer}
 
-/* TIME SLIDER */
-.slider-row{
-  display:flex;align-items:center;gap:10px;
-  background:var(--s1);border-radius:12px;
-  padding:10px 14px;margin-bottom:10px;
-  border:0.5px solid var(--bd);
-}
-.slider-row label{font-size:11px;font-weight:600;color:var(--tx3);white-space:nowrap;letter-spacing:0.04em}
-.slider-row input[type=range]{flex:1;accent-color:var(--ac);cursor:pointer}
-.slider-val{font-family:'Geist Mono',monospace;font-size:13px;font-weight:600;color:var(--ac);min-width:48px;text-align:right}
+/* BUDGET SELECTOR */
+.budget-row{display:flex;align-items:center;gap:10px;background:var(--s1);border-radius:14px;padding:12px 14px;margin-bottom:12px;border:0.5px solid var(--bd)}
+.budget-row label{font-size:12px;font-weight:600;color:var(--tx3);white-space:nowrap;letter-spacing:0.03em}
+.budget-row input[type=range]{flex:1;accent-color:var(--ac);cursor:pointer}
+.budget-val{font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:var(--ac);min-width:52px;text-align:right}
 
-/* QUICK FILTERS */
-.qf{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
-.qf::-webkit-scrollbar{display:none}
-.qb{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:0.5px solid var(--bd2);background:transparent;color:var(--tx3);font-family:'Geist',sans-serif;flex-shrink:0;transition:all .15s}
-.qb.on{background:var(--acbg);color:var(--ac2);border-color:rgba(99,102,241,0.3)}
-
-/* LIST ITEMS — no card, just rows */
-.list-section-title{
-  font-size:10px;font-weight:700;color:var(--tx3);
-  letter-spacing:0.08em;text-transform:uppercase;
-  padding:10px 2px 6px;
-}
-.litem{
-  background:var(--s1);border-radius:16px;
-  border:0.5px solid var(--bd);margin-bottom:6px;
-  overflow:hidden;transition:border-color .15s;
-}
-.litem:active{border-color:var(--bd3)}
-.litem-head{padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer}
-
-/* RANK NUMBER */
-.rank{
-  width:28px;height:28px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;
-  flex-shrink:0;background:var(--s3);color:var(--tx3);
-}
-
-/* SECTOR COLORS */
-.rank-food{background:rgba(251,146,60,0.15);color:var(--or)}
-.rank-retail{background:rgba(99,102,241,0.15);color:var(--ac2)}
-.rank-logis{background:rgba(251,191,36,0.15);color:var(--yw)}
-.rank-livr{background:rgba(52,211,153,0.15);color:var(--gn)}
-.rank-autre{background:var(--s3);color:var(--tx3)}
-
-.litem-info{flex:1;min-width:0}
-.litem-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.litem-addr{font-size:11px;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.litem-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.stbtn{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:'Geist',sans-serif;transition:all .15s}
+/* STOP CARDS */
+.stop-card{background:var(--s1);border-radius:16px;border:0.5px solid var(--bd);margin-bottom:6px;overflow:hidden;transition:border-color .15s}
+.sc-head{padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.sc-rank{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-addr{font-size:11px;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.sc-time{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600}
+.stbtn{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:'Geist',sans-serif}
 .s-todo{background:var(--s3);color:var(--tx3)}
 .s-done{background:var(--gnbg);color:var(--gn)}
 .s-relance{background:var(--ywbg);color:var(--yw)}
 .s-nope{background:var(--rdbg);color:var(--rd)}
-.litem-time{font-family:'Geist Mono',monospace;font-size:11px;color:var(--tx3)}
 
-/* DETAIL PANEL */
-.litem-detail{padding:0 14px 14px;display:none}
-.litem-detail.open{display:block}
-.dsep{height:0.5px;background:var(--bd);margin-bottom:12px}
-
+/* DETAIL */
+.sc-detail{padding:0 14px 13px;display:none}
+.sc-detail.open{display:block}
+.dsep{height:0.5px;background:var(--bd);margin-bottom:11px}
 .time-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
-.t3c{background:var(--s2);border-radius:12px;padding:9px 6px;text-align:center;border:0.5px solid var(--bd)}
-.t3c.active-t{border-color:var(--ac);background:var(--acbg)}
+.t3{background:var(--s2);border-radius:12px;padding:8px 5px;text-align:center;border:0.5px solid var(--bd)}
+.t3.act{border-color:var(--ac);background:var(--acbg)}
 .t3v{font-family:'Geist Mono',monospace;font-size:16px;font-weight:700}
 .t3l{font-size:10px;color:var(--tx3);margin-top:2px}
-.tv-w{color:var(--or)}.tv-b{color:var(--gn)}.tv-bus{color:var(--ac2)}
-
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.btn-go{background:var(--ac);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 3px 12px rgba(99,102,241,0.3)}
-.btn-go:active{opacity:.85}
-.btn-alt{background:var(--s2);color:var(--tx);border:0.5px solid var(--bd2);border-radius:12px;padding:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
-.detail-meta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3);margin-bottom:8px}
-.detail-meta span{display:flex;align-items:center;gap:3px}
+.tvw{color:var(--or)}.tvb{color:var(--gn)}.tvbus{color:var(--ac2)}
+.act-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.btn-nav{background:var(--ac);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 3px 10px rgba(99,102,241,0.3)}
+.btn-nav:active{opacity:.85}
+.btn-sec{background:var(--s2);color:var(--tx);border:0.5px solid var(--bd2);border-radius:12px;padding:11px;font-size:13px;font-family:'Geist',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.meta-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.mpill{font-size:11px;color:var(--tx3);background:var(--s2);border-radius:8px;padding:3px 8px;font-family:'Geist Mono',monospace}
 .noteinput{background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:9px 11px;color:var(--tx);font-family:'Geist',sans-serif;font-size:12px;outline:none;resize:none;height:50px;width:100%}
 .noteinput:focus{border-color:var(--ac)}
 .noteinput::placeholder{color:var(--tx3)}
-.visited-label{font-size:10px;color:var(--tx3);margin-top:4px;font-family:'Geist Mono',monospace}
+.visited-lbl{font-size:10px;color:var(--tx3);margin-top:4px;font-family:'Geist Mono',monospace}
 
-/* ── PAGE CARTE ── */
+/* ZONE COMPLETE BANNER */
+.zone-done-banner{background:var(--gnbg);border:0.5px solid rgba(52,211,153,0.25);border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.zone-done-banner .icon{font-size:24px;flex-shrink:0}
+.zone-done-banner .txt{font-size:13px;color:var(--gn);font-weight:500;line-height:1.4}
+
+/* SECTION HEADER */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:4px}
+.sec-title{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:0.06em;text-transform:uppercase}
+.sec-count{font-family:'Geist Mono',monospace;font-size:11px;color:var(--tx3)}
+
+/* ════════════════════════════
+   PAGE 2 : LISTE COMPLÈTE
+   ════════════════════════════ */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--s1);border:0.5px solid var(--bd2);border-radius:14px;padding:10px 14px;margin-bottom:10px}
+.search-bar input{flex:1;background:none;border:none;color:var(--tx);font-family:'Geist',sans-serif;font-size:14px;outline:none}
+.search-bar input::placeholder{color:var(--tx3)}
+.slider-row{display:flex;align-items:center;gap:10px;background:var(--s1);border-radius:12px;padding:10px 14px;margin-bottom:10px;border:0.5px solid var(--bd)}
+.slider-row label{font-size:11px;font-weight:700;color:var(--tx3);white-space:nowrap;letter-spacing:0.04em}
+.slider-row input[type=range]{flex:1;accent-color:var(--ac)}
+.slider-val{font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:var(--ac);min-width:48px;text-align:right}
+.qf{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+.qf::-webkit-scrollbar{display:none}
+.qb{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:0.5px solid var(--bd2);background:transparent;color:var(--tx3);font-family:'Geist',sans-serif;flex-shrink:0;transition:all .15s}
+.qb.on{background:var(--acbg);color:var(--ac2);border-color:rgba(99,102,241,0.3)}
+
+/* ════════════════════════════
+   PAGE 3 : CARTE
+   ════════════════════════════ */
 #mapbox{height:100%;width:100%}
-.map-fab{
-  position:absolute;bottom:calc(14px + var(--sb));left:14px;right:14px;
-  z-index:1000;
-}
-.map-today{
-  background:rgba(7,7,10,0.96);backdrop-filter:blur(20px);
-  border-radius:18px;border:0.5px solid var(--bd3);
-  overflow:hidden;max-height:50vh;display:flex;flex-direction:column;
-}
-.mt-head{
-  padding:13px 16px 10px;border-bottom:0.5px solid var(--bd2);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
-.mt-title{font-size:13px;font-weight:700;color:var(--tx2);letter-spacing:0.01em}
-.mt-subtitle{font-size:11px;color:var(--tx3);margin-top:1px}
-.mt-launch{
-  background:var(--ac);color:#fff;border:none;border-radius:10px;
-  padding:8px 14px;font-size:12px;font-weight:600;
-  font-family:'Geist',sans-serif;cursor:pointer;flex-shrink:0;
-  box-shadow:0 2px 10px rgba(99,102,241,0.35);
-}
-.mt-body{overflow-y:auto;padding:8px 12px;flex:1;-webkit-overflow-scrolling:touch}
-.mt-body::-webkit-scrollbar{display:none}
+.map-panel{position:absolute;bottom:calc(10px + var(--sb));left:10px;right:10px;z-index:1000;background:rgba(7,7,10,0.97);border-radius:18px;border:0.5px solid var(--bd3);overflow:hidden;max-height:48vh;display:flex;flex-direction:column;backdrop-filter:blur(30px)}
+.mp-head{padding:12px 15px 10px;border-bottom:0.5px solid var(--bd2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px}
+.mp-left{flex:1;min-width:0}
+.mp-title{font-size:14px;font-weight:700}
+.mp-sub{font-size:11px;color:var(--tx3);margin-top:1px}
+.btn-launch-map{background:var(--ac);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;font-family:'Geist',sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(99,102,241,0.35);flex-shrink:0}
+.mp-body{overflow-y:auto;padding:8px 12px;flex:1}
+.mp-body::-webkit-scrollbar{display:none}
+.map-stop-row{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:10px;margin-bottom:3px;cursor:pointer;transition:background .15s}
+.map-stop-row:active{background:var(--s2)}
+.msn{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;background:var(--s3);color:var(--tx3)}
+.msn.done{background:var(--gnbg);color:var(--gn)}
+.ms-info{flex:1;min-width:0}
+.ms-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-meta{font-size:10px;color:var(--tx3);font-family:'Geist Mono',monospace;margin-top:1px}
+.ms-btn{border:none;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;flex-shrink:0}
 
-/* STOP ROWS */
-.stop-row{
-  display:flex;align-items:center;gap:9px;
-  padding:8px 10px;border-radius:10px;
-  margin-bottom:4px;cursor:pointer;
-  transition:background .15s;
-}
-.stop-row:hover,.stop-row:active{background:var(--s2)}
-.stop-num{
-  width:22px;height:22px;border-radius:7px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;
-  flex-shrink:0;background:var(--s3);color:var(--tx3);
-}
-.stop-num.done{background:var(--gnbg);color:var(--gn)}
-.stop-info{flex:1;min-width:0}
-.stop-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stop-meta{font-size:10px;color:var(--tx3);font-family:'Geist Mono',monospace;margin-top:1px}
-.stop-stbtn{border:none;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;flex-shrink:0}
-
-/* ── PAGE STATS ── */
-#pg-stats{padding:14px}
+/* ════════════════════════════
+   PAGE 4 : STATS
+   ════════════════════════════ */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
 .sbox{background:var(--s1);border-radius:16px;padding:13px 14px;border:0.5px solid var(--bd)}
 .sbox .v{font-family:'Geist Mono',monospace;font-size:24px;font-weight:700}
-.sbox .l{font-size:10px;font-weight:600;color:var(--tx3);margin-top:3px;letter-spacing:0.04em;text-transform:uppercase}
-.sec-h{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.sbox .l{font-size:10px;font-weight:700;color:var(--tx3);margin-top:3px;letter-spacing:0.04em;text-transform:uppercase}
 .pbar{margin-bottom:8px}
 .pbar-row{display:flex;justify-content:space-between;font-size:12px;font-weight:500;margin-bottom:3px}
 .pbar-track{height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
 .pbar-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.infocard{background:var(--s1);border-radius:16px;padding:14px;border:0.5px solid var(--bd);margin-bottom:8px}
-.pb{height:calc(20px + var(--sb))}
+.icard{background:var(--s1);border-radius:16px;padding:14px;border:0.5px solid var(--bd);margin-bottom:8px}
+.icard-title{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
 
 /* TOAST */
 .toast{position:fixed;bottom:calc(70px + var(--sb));left:50%;transform:translateX(-50%) translateY(12px);background:var(--s3);color:var(--tx);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;border:0.5px solid var(--bd3);box-shadow:0 8px 24px rgba(0,0,0,0.5)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* EMPTY */
-.empty{text-align:center;padding:48px 20px}
-.empty-i{font-size:38px;opacity:.2;margin-bottom:10px}
+.empty{text-align:center;padding:40px 20px}
+.empty-i{font-size:36px;opacity:.2;margin-bottom:10px}
 .empty-t{font-size:13px;color:var(--tx3);line-height:1.6}
 
 /* LEAFLET */
@@ -232,24 +204,60 @@ nav button.on .tind{background:var(--ac)}
 <div id="app">
 
 <header>
-  <div class="logo">Job<span class="logo-ac">Radar</span></div>
+  <div class="logo">Job<em>Radar</em></div>
   <div class="tpill">
     <button class="tp" id="tt-pied" onclick="setT('pied')">🚶</button>
     <button class="tp on" id="tt-velo" onclick="setT('velo')">🚴 Vélo</button>
     <button class="tp" id="tt-bus" onclick="setT('bus')">🚌 Bus</button>
   </div>
   <div class="hdr-r">
-    <div class="done-pill" id="done-pill">0/1163</div>
+    <div class="progress-pill">
+      <div class="pp-ring">
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <circle class="ppr-t" cx="11" cy="11" r="8"/>
+          <circle class="ppr-f" id="rf" cx="11" cy="11" r="8" stroke-dasharray="50.3" stroke-dashoffset="50.3"/>
+        </svg>
+        <div class="pct" id="rp">0%</div>
+      </div>
+      <div class="pp-txt" id="pp-txt">0/1163</div>
+    </div>
   </div>
 </header>
 
 <div class="pages">
 
-  <!-- ── LISTE ── -->
-  <div class="pg on" id="pg-liste">
+  <!-- ① AUJOURD'HUI -->
+  <div class="pg on pg-pad" id="pg-today">
+    <div class="today-hero">
+      <div class="th-label">📅 Aujourd'hui</div>
+      <div class="th-title" id="th-title">Prêt à déposer des CV ?</div>
+      <div class="th-sub" id="th-sub">Configure ton budget temps ci-dessous</div>
+      <div class="th-stats" id="th-stats">
+        <div class="th-stat"><div class="v" id="th-stops">—</div><div class="l">stops</div></div>
+        <div class="th-stat"><div class="v" id="th-time">—</div><div class="l">min estimés</div></div>
+        <div class="th-stat"><div class="v" id="th-km">—</div><div class="l">km</div></div>
+      </div>
+      <div class="th-btn">
+        <button class="btn-start" onclick="launchInMaps()">📍 Lancer dans Google Maps</button>
+        <button class="btn-adjust" onclick="goTab('map')">🗺</button>
+      </div>
+    </div>
+
+    <div class="budget-row">
+      <label>⏱ BUDGET</label>
+      <input type="range" id="budget" min="30" max="240" value="120" step="15" oninput="onBudget()">
+      <div class="budget-val" id="bval">2h00</div>
+    </div>
+
+    <div id="today-stops"></div>
+    <div class="pb"></div>
+  </div>
+
+  <!-- ② LISTE COMPLÈTE -->
+  <div class="pg pg-pad" id="pg-liste">
     <div class="search-bar">
       <span style="font-size:15px;color:var(--tx3)">🔍</span>
-      <input type="text" id="q" placeholder="Rechercher un nom ou une adresse..." oninput="renderListe()">
+      <input type="text" id="q" placeholder="Rechercher..." oninput="renderListe()">
     </div>
     <div class="slider-row">
       <label>MAX</label>
@@ -270,27 +278,23 @@ nav button.on .tind{background:var(--ac)}
     <div class="pb"></div>
   </div>
 
-  <!-- ── CARTE ── -->
+  <!-- ③ CARTE -->
   <div class="pg" id="pg-map">
     <div id="mapbox"></div>
-    <div class="map-fab">
-      <div class="map-today">
-        <div class="mt-head">
-          <div>
-            <div class="mt-title" id="mt-title">Itinéraire du jour</div>
-            <div class="mt-subtitle" id="mt-sub">— stops à faire</div>
-          </div>
-          <button class="mt-launch" id="mt-launch" onclick="launchRoute()">
-            Lancer dans Maps →
-          </button>
+    <div class="map-panel">
+      <div class="mp-head">
+        <div class="mp-left">
+          <div class="mp-title" id="mp-title">Itinéraire du jour</div>
+          <div class="mp-sub" id="mp-sub">— stops</div>
         </div>
-        <div class="mt-body" id="mt-body"></div>
+        <button class="btn-launch-map" onclick="launchInMaps()">Lancer →</button>
       </div>
+      <div class="mp-body" id="mp-body"></div>
     </div>
   </div>
 
-  <!-- ── STATS ── -->
-  <div class="pg" id="pg-stats">
+  <!-- ④ STATS -->
+  <div class="pg pg-pad" id="pg-stats">
     <div id="stats"></div>
     <div class="pb"></div>
   </div>
@@ -298,7 +302,8 @@ nav button.on .tind{background:var(--ac)}
 </div>
 
 <nav>
-  <button class="on" onclick="goTab('liste')"><span class="ni">🗂</span><div class="tind" id="ti-liste"></div><span>Liste</span></button>
+  <button class="on" onclick="goTab('today')"><span class="ni">📅</span><div class="tind" id="ti-today"></div><span>Aujourd'hui</span></button>
+  <button onclick="goTab('liste')"><span class="ni">🗂</span><div class="tind" id="ti-liste"></div><span>Liste</span></button>
   <button onclick="goTab('map')"><span class="ni">🗺</span><div class="tind" id="ti-map"></div><span>Carte</span></button>
   <button onclick="goTab('stats')"><span class="ni">📊</span><div class="tind" id="ti-stats"></div><span>Stats</span></button>
 </nav>
@@ -309,52 +314,59 @@ nav button.on .tind{background:var(--ac)}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data.js"></script>
 <script>
-// ══════════════════════════════
-//  STATE
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
 const HOME = { lat:49.4657, lon:1.0832 };
-const CLUSTER_R = 0.5;
-const ZONE_COLORS = ['#6366F1','#34D399','#FBBF24','#FB923C','#F87171','#06B6D4','#A78BFA','#4ADE80','#FCD34D','#F472B6'];
+const TEMPS_CV = 5;   // minutes par dépôt de CV
+const COLORS = ['#6366F1','#34D399','#FBBF24','#FB923C','#F87171','#06B6D4','#A78BFA','#4ADE80'];
+const SCOL = { food:'#FB923C', retail:'#818CF8', logis:'#FBBF24', livr:'#34D399', autre:'#4A4658' };
+const SLBL = { food:'🍔 Restauration', retail:'🛒 Retail', logis:'📦 Logistique', livr:'🚴 Livraison', autre:'💼 Autre' };
+const TI = { pied:'🚶', velo:'🚴', bus:'🚌' };
+const TMODE = { pied:'walking', velo:'bicycling', bus:'transit' };
+const NEXT = { todo:'done', done:'relance', relance:'nope', nope:'todo' };
+const LABEL = { todo:'À faire', done:'Déposé ✓', relance:'Relancer', nope:'Ignoré' };
+const CLS = { todo:'s-todo', done:'s-done', relance:'s-relance', nope:'s-nope' };
 
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
 let ST={}, NO={}, DT={};
-let transport='velo', maxT=60, filt='all', tab='liste';
-let map=null, mapL=[], routeLine=null;
-let ZONES=[], routeStops=[];
+let transport='velo', maxT=60, budget=120, filt='all', tab='today';
+let map=null, mapL=[];
+let todayPlan=[];   // stops sélectionnés pour aujourd'hui
 
-const NEXT={todo:'done',done:'relance',relance:'nope',nope:'todo'};
-const LABEL={todo:'À faire',done:'Déposé ✓',relance:'Relancer',nope:'Ignoré'};
-const CLS={todo:'s-todo',done:'s-done',relance:'s-relance',nope:'s-nope'};
-const SCOL={food:'#FB923C',retail:'#818CF8',logis:'#FBBF24',livr:'#34D399',autre:'#4A4658'};
-const SLBL={food:'🍔 Restauration',retail:'🛒 Retail',logis:'📦 Logistique',livr:'🚴 Livraison',autre:'💼 Autre'};
-const TI={pied:'🚶',velo:'🚴',bus:'🚌'};
-const TMODE={pied:'walking',velo:'bicycling',bus:'transit'};
-
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 //  PERSIST
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 function save(){
   try{
-    localStorage.setItem('jr6_st',JSON.stringify(ST));
-    localStorage.setItem('jr6_no',JSON.stringify(NO));
-    localStorage.setItem('jr6_dt',JSON.stringify(DT));
-    localStorage.setItem('jr6_tr',transport);
-    localStorage.setItem('jr6_tm',maxT);
+    localStorage.setItem('jr7_st',JSON.stringify(ST));
+    localStorage.setItem('jr7_no',JSON.stringify(NO));
+    localStorage.setItem('jr7_dt',JSON.stringify(DT));
+    localStorage.setItem('jr7_tr',transport);
+    localStorage.setItem('jr7_tm',maxT);
+    localStorage.setItem('jr7_bg',budget);
   }catch(e){}
 }
 function loadSaved(){
   try{
-    const s=localStorage.getItem('jr6_st');if(s)ST=JSON.parse(s);
-    const n=localStorage.getItem('jr6_no');if(n)NO=JSON.parse(n);
-    const d=localStorage.getItem('jr6_dt');if(d)DT=JSON.parse(d);
-    const t=localStorage.getItem('jr6_tr');if(t)transport=t;
-    const m=localStorage.getItem('jr6_tm');if(m)maxT=parseInt(m);
+    const s=localStorage.getItem('jr7_st');if(s)ST=JSON.parse(s);
+    const n=localStorage.getItem('jr7_no');if(n)NO=JSON.parse(n);
+    const d=localStorage.getItem('jr7_dt');if(d)DT=JSON.parse(d);
+    const t=localStorage.getItem('jr7_tr');if(t)transport=t;
+    const m=localStorage.getItem('jr7_tm');if(m)maxT=parseInt(m);
+    const b=localStorage.getItem('jr7_bg');if(b)budget=parseInt(b);
   }catch(e){}
-  CSV_DATA.forEach(r=>{if(!ST[r._id])ST[r._id]='todo';if(!NO[r._id])NO[r._id]='';});
+  CSV_DATA.forEach(r=>{
+    if(!ST[r._id])ST[r._id]='todo';
+    if(!NO[r._id])NO[r._id]='';
+  });
 }
 
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 //  HELPERS
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 function gt(r){return transport==='pied'?r.t_pied:transport==='velo'?r.t_velo:r.t_bus;}
 
 function hav(a,b){
@@ -369,74 +381,196 @@ function gpsu(r){
   return`https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}`;
 }
 
+function fmtBudget(min){
+  const h=Math.floor(min/60),m=min%60;
+  return h>0?(m>0?`${h}h${String(m).padStart(2,'0')}`:`${h}h00`):`${m}min`;
+}
+
 function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2000);
 }
 
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 //  TRANSPORT
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 function setT(t){
   transport=t;
   document.querySelectorAll('.tp').forEach(b=>b.classList.remove('on'));
   document.getElementById('tt-'+t).classList.add('on');
-  buildZones();save();renderAll();
+  buildPlan();save();renderAll();
   toast(TI[t]+' Mode '+{pied:'Pied',velo:'Vélo',bus:'Bus'}[t]);
 }
+
+// ═══════════════════════════════════════════════
+//  PLAN DU JOUR — algorithme optimisé
+// ═══════════════════════════════════════════════
+function buildPlan(){
+  // Récupère les établissements à faire, triés par distance
+  const candidates = CSV_DATA
+    .filter(r=>r.lat&&r.lon&&(ST[r._id]||'todo')==='todo')
+    .sort((a,b)=>gt(a)-gt(b));
+
+  // Algorithme greedy : on part de chez soi, on prend le plus proche
+  // en tenant compte du budget temps restant
+  // Budget = temps trajet aller + TEMPS_CV par stop + retour au dernier
+  const selected=[];
+  let timeUsed=0;
+  let prev={lat:HOME.lat,lon:HOME.lon};
+
+  for(const r of candidates){
+    if(!r.lat||!r.lon)continue;
+    // Temps pour aller au prochain stop depuis la position actuelle
+    const tNext = Math.round(hav(prev,{lat:r.lat,lon:r.lon}) / (transport==='pied'?5:transport==='velo'?15:20) * 60);
+    // Temps de retour à la maison depuis ce stop
+    const tReturn = gt(r);
+    // Est-ce qu'on a le budget ?
+    if(timeUsed + tNext + TEMPS_CV + tReturn <= budget){
+      selected.push({...r, tFromPrev:tNext});
+      timeUsed += tNext + TEMPS_CV;
+      prev={lat:r.lat,lon:r.lon};
+    }
+    if(selected.length>=15)break;
+  }
+  todayPlan=selected;
+  return selected;
+}
+
+function planStats(){
+  const done=todayPlan.filter(r=>ST[r._id]==='done').length;
+  const total=todayPlan.length;
+  const totalTime=todayPlan.reduce((s,r)=>s+(r.tFromPrev||gt(r))+TEMPS_CV,0);
+  const totalKm=todayPlan.reduce((s,r)=>s+(r.dist_km||0),0);
+  return{done,total,totalTime:Math.round(totalTime),totalKm:totalKm.toFixed(1)};
+}
+
+// ═══════════════════════════════════════════════
+//  PAGE AUJOURD'HUI
+// ═══════════════════════════════════════════════
+function onBudget(){
+  budget=parseInt(document.getElementById('budget').value);
+  document.getElementById('bval').textContent=fmtBudget(budget);
+  buildPlan();renderToday();
+  if(tab==='map')renderMap();
+  save();
+}
+
+function renderToday(){
+  const {done,total,totalTime,totalKm}=planStats();
+  const remaining=total-done;
+
+  // Hero
+  if(total===0){
+    document.getElementById('th-title').textContent='Aucun stop dans ce budget';
+    document.getElementById('th-sub').textContent='Augmente le budget temps ou change de mode';
+  }else if(done===total&&total>0){
+    document.getElementById('th-title').textContent='Journée terminée ! 🎉';
+    document.getElementById('th-sub').textContent=`${total} CV déposés aujourd'hui`;
+  }else{
+    document.getElementById('th-title').textContent=`${remaining} établissement${remaining>1?'s':''} à visiter`;
+    document.getElementById('th-sub').textContent=`Itinéraire optimisé depuis chez toi`;
+  }
+  document.getElementById('th-stops').textContent=remaining||'—';
+  document.getElementById('th-time').textContent=totalTime||'—';
+  document.getElementById('th-km').textContent=totalKm||'—';
+
+  const el=document.getElementById('today-stops');
+  if(!todayPlan.length){
+    el.innerHTML=`<div class="empty"><div class="empty-i">📭</div><div class="empty-t">Augmente le budget temps<br>ou change de mode de transport</div></div>`;
+    return;
+  }
+
+  // Section "à faire"
+  const todo=todayPlan.filter(r=>(ST[r._id]||'todo')==='todo');
+  const doneItems=todayPlan.filter(r=>ST[r._id]==='done');
+  let html='';
+
+  if(todo.length){
+    html+=`<div class="sec-header"><div class="sec-title">${TI[transport]} À visiter</div><div class="sec-count">${todo.length} stops</div></div>`;
+    todo.forEach((r,i)=>{ html+=renderStopCard(r,i+1,true); });
+  }
+
+  if(doneItems.length){
+    html+=`<div class="sec-header" style="margin-top:10px"><div class="sec-title">✓ Faits aujourd'hui</div><div class="sec-count">${doneItems.length}</div></div>`;
+    doneItems.forEach(r=>{ html+=renderStopCard(r,-1,false); });
+  }
+
+  el.innerHTML=html;
+  updateProgress();
+}
+
+function renderStopCard(r,rank,showRank){
+  const s=ST[r._id]||'todo';
+  const col=SCOL[r.secteur]||'#4A4658';
+  const rankHtml=showRank&&rank>0
+    ?`<div class="sc-rank" style="background:${col}20;color:${col}">${rank}</div>`
+    :`<div class="sc-rank" style="background:var(--s3);color:var(--tx3)">${s==='done'?'✓':'—'}</div>`;
+  return`
+  <div class="stop-card" id="sc-${r._id}">
+    <div class="sc-head" onclick="toggleD(${r._id})">
+      ${rankHtml}
+      <div class="sc-info">
+        <div class="sc-name" style="${s==='done'?'text-decoration:line-through;opacity:.5':''}">${r.nom||'?'}</div>
+        <div class="sc-addr">${r.adresse||''}</div>
+      </div>
+      <div class="sc-right">
+        <button class="stbtn ${CLS[s]}" onclick="event.stopPropagation();toggleS(${r._id})">${LABEL[s]}</button>
+        <div class="sc-time" style="color:${col}">${TI[transport]} ${gt(r)}min</div>
+      </div>
+    </div>
+    <div class="sc-detail" id="sd-${r._id}">
+      <div class="dsep"></div>
+      <div class="time-3">
+        <div class="t3 ${transport==='pied'?'act':''}"><div class="t3v tvw">${r.t_pied}</div><div class="t3l">🚶 min</div></div>
+        <div class="t3 ${transport==='velo'?'act':''}"><div class="t3v tvb">${r.t_velo}</div><div class="t3l">🚴 min</div></div>
+        <div class="t3 ${transport==='bus'?'act':''}"><div class="t3v tvbus">${r.t_bus}</div><div class="t3l">🚌 min</div></div>
+      </div>
+      <div class="act-row">
+        <button class="btn-nav" onclick="window.open('${gpsu(r)}','_blank')">📍 Naviguer</button>
+        ${r.telephone?`<button class="btn-sec" onclick="window.open('tel:${r.telephone}')">📞 Appeler</button>`:`<button class="btn-sec" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}','_blank')">🗺 Maps</button>`}
+      </div>
+      <div class="meta-pills">
+        ${r.note?`<span class="mpill">⭐ ${r.note}</span>`:''}
+        ${r.dist_km?`<span class="mpill">📏 ${r.dist_km}km</span>`:''}
+        ${r.nb_avis?`<span class="mpill">${r.nb_avis} avis</span>`:''}
+      </div>
+      <textarea class="noteinput" placeholder="Notes (manager, horaires, RDV...)" onchange="saveN(${r._id},this.value)">${NO[r._id]||''}</textarea>
+      ${DT[r._id]?`<div class="visited-lbl">Visité le ${DT[r._id]}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function toggleD(id){document.getElementById('sd-'+id)?.classList.toggle('open');}
+function toggleS(id){
+  ST[id]=NEXT[ST[id]||'todo'];
+  if(ST[id]==='done')DT[id]=new Date().toLocaleDateString('fr-FR');
+  buildPlan();save();renderAll();
+  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[ST[id]]);
+}
+function saveN(id,v){NO[id]=v;save();}
+
+function launchInMaps(){
+  const todo=todayPlan.filter(r=>(ST[r._id]||'todo')==='todo'&&r.lat&&r.lon).slice(0,9);
+  if(!todo.length){toast('Tous les stops sont déjà faits !');return;}
+  const coords=todo.map(r=>`${r.lat},${r.lon}`).join('/');
+  window.open(`https://www.google.com/maps/dir/${HOME.lat},${HOME.lon}/${coords}`,'_blank');
+}
+
+// ═══════════════════════════════════════════════
+//  PAGE LISTE COMPLÈTE
+// ═══════════════════════════════════════════════
 function onSlider(){
   maxT=parseInt(document.getElementById('tslider').value);
   document.getElementById('tval').textContent=maxT+' min';
-  buildZones();renderListe();
-  if(tab==='map')renderMap();
+  renderListe();
 }
-
-// ══════════════════════════════
-//  ZONES (clustering simple)
-// ══════════════════════════════
-function buildZones(){
-  const pts=CSV_DATA.filter(r=>r.lat&&r.lon&&gt(r)<=maxT);
-  const vis=new Set();ZONES=[];
-  pts.sort((a,b)=>hav(HOME,{lat:a.lat,lon:a.lon})-hav(HOME,{lat:b.lat,lon:b.lon}));
-  pts.forEach(pt=>{
-    if(vis.has(pt._id))return;vis.add(pt._id);
-    const nb=pts.filter(p=>!vis.has(p._id)&&hav({lat:pt.lat,lon:pt.lon},{lat:p.lat,lon:p.lon})<=CLUSTER_R);
-    const mem=[pt,...nb];nb.forEach(n=>vis.add(n._id));
-    const zi=ZONES.length;mem.forEach(m=>{m._zone=zi;});
-    const cLat=mem.reduce((s,m)=>s+m.lat,0)/mem.length;
-    const cLon=mem.reduce((s,m)=>s+m.lon,0)/mem.length;
-    ZONES.push({id:zi,members:tspNN(mem),lat:cLat,lon:cLon,dh:hav(HOME,{lat:cLat,lon:cLon}).toFixed(1),col:ZONE_COLORS[zi%ZONE_COLORS.length]});
-  });
-  CSV_DATA.filter(r=>!pts.find(p=>p._id===r._id)).forEach(r=>{r._zone=-1;});
-  // Build today's route = todo stops sorted by distance
-  routeStops=CSV_DATA
-    .filter(r=>r.lat&&r.lon&&gt(r)<=maxT&&(ST[r._id]||'todo')==='todo')
-    .sort((a,b)=>gt(a)-gt(b))
-    .slice(0,10);
-}
-
-function tspNN(pts){
-  if(pts.length<=1)return pts;
-  const uv=[...pts];const rt=[];let c={lat:HOME.lat,lon:HOME.lon};
-  while(uv.length){
-    let bi=0,bd=Infinity;
-    uv.forEach((p,i)=>{const d=hav(c,{lat:p.lat,lon:p.lon});if(d<bd){bd=d;bi=i;}});
-    rt.push(uv[bi]);c={lat:uv[bi].lat,lon:uv[bi].lon};uv.splice(bi,1);
-  }
-  return rt;
-}
-
-// ══════════════════════════════
-//  LISTE
-// ══════════════════════════════
 function setF(f,btn){
   filt=f;
   document.querySelectorAll('.qb').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   renderListe();
 }
-
 function getFiltered(){
   const q=(document.getElementById('q')?.value||'').toLowerCase();
   return CSV_DATA.filter(r=>{
@@ -453,299 +587,151 @@ function getFiltered(){
     return true;
   }).sort((a,b)=>gt(a)-gt(b));
 }
-
 function renderListe(){
   const el=document.getElementById('liste');
   const f=getFiltered();
-  if(!f.length){
-    el.innerHTML=`<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Aucun résultat.<br>Essaie d'élargir le temps max.</div></div>`;
-    return;
-  }
-  // Group by distance bucket for section headers
-  const todo=f.filter(r=>(ST[r._id]||'todo')==='todo');
-  const done=f.filter(r=>ST[r._id]==='done');
-  const other=f.filter(r=>ST[r._id]==='relance'||ST[r._id]==='nope');
-  let html='';
-  if(todo.length){
-    html+=`<div class="list-section-title">${TI[transport]} À visiter · ${todo.length} établissements</div>`;
-    html+=todo.slice(0,120).map((r,i)=>renderItem(r,i+1)).join('');
-    if(todo.length>120)html+=`<div style="text-align:center;padding:10px;font-size:12px;color:var(--tx3)">+${todo.length-120} autres. Affine le filtre.</div>`;
-  }
-  if(done.length){
-    html+=`<div class="list-section-title" style="margin-top:6px">✓ Déposés · ${done.length}</div>`;
-    html+=done.map(r=>renderItem(r,-1)).join('');
-  }
-  if(other.length){
-    html+=`<div class="list-section-title" style="margin-top:6px">Autres · ${other.length}</div>`;
-    html+=other.map(r=>renderItem(r,-1)).join('');
-  }
-  el.innerHTML=html;
-  updateDonePill();
+  if(!f.length){el.innerHTML=`<div class="empty"><div class="empty-i">🔍</div><div class="empty-t">Aucun résultat</div></div>`;return;}
+  el.innerHTML=f.slice(0,150).map((r,i)=>renderStopCard(r,i+1,true)).join('');
+  if(f.length>150)el.innerHTML+=`<div style="text-align:center;padding:10px;font-size:12px;color:var(--tx3)">+${f.length-150} autres — affine le filtre</div>`;
 }
 
-function renderItem(r,rank){
-  const s=ST[r._id]||'todo',t=gt(r);
-  const zoneI=r._zone>=0?ZONES.findIndex(z=>z.id===r._zone):-1;
-  const zoneCol=zoneI>=0?ZONES[zoneI].col:'transparent';
-  const rankHtml=rank>0
-    ?`<div class="rank rank-${r.secteur}">${rank}</div>`
-    :`<div class="rank rank-${r.secteur}">${s==='done'?'✓':'—'}</div>`;
-  return `
-  <div class="litem" id="li-${r._id}">
-    <div class="litem-head" onclick="toggleD(${r._id})">
-      ${rankHtml}
-      <div class="litem-info">
-        <div class="litem-name">${r.nom||'?'}</div>
-        <div class="litem-addr">${r.adresse||''}</div>
-      </div>
-      <div class="litem-right">
-        <button class="stbtn ${CLS[s]}" onclick="event.stopPropagation();toggleS(${r._id})">${LABEL[s]}</button>
-        <div class="litem-time">${TI[transport]} ${t}min</div>
-      </div>
-    </div>
-    <div class="litem-detail" id="ld-${r._id}">
-      <div class="dsep"></div>
-      <div class="time-3">
-        <div class="t3c ${transport==='pied'?'active-t':''}">
-          <div class="t3v tv-w">${r.t_pied}</div><div class="t3l">🚶 min</div>
-        </div>
-        <div class="t3c ${transport==='velo'?'active-t':''}">
-          <div class="t3v tv-b">${r.t_velo}</div><div class="t3l">🚴 min</div>
-        </div>
-        <div class="t3c ${transport==='bus'?'active-t':''}">
-          <div class="t3v tv-bus">${r.t_bus}</div><div class="t3l">🚌 min</div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn-go" onclick="window.open('${gpsu(r)}','_blank')">📍 Naviguer</button>
-        ${r.telephone?`<button class="btn-alt" onclick="window.open('tel:${r.telephone}')">📞 ${r.telephone}</button>`:`<button class="btn-alt" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}','_blank')">🗺 Voir sur Maps</button>`}
-      </div>
-      <div class="detail-meta">
-        ${r.note?`<span>⭐ ${r.note}</span>`:''}
-        ${r.dist_km?`<span>📏 ${r.dist_km} km</span>`:''}
-        ${zoneI>=0?`<span style="color:${zoneCol}">● Zone ${zoneI+1}</span>`:''}
-      </div>
-      <textarea class="noteinput" placeholder="Notes perso (manager, horaires, RDV...)" onchange="saveN(${r._id},this.value)">${NO[r._id]||''}</textarea>
-      ${DT[r._id]?`<div class="visited-label">Visité le ${DT[r._id]}</div>`:''}
-    </div>
-  </div>`;
-}
-
-function toggleD(id){document.getElementById('ld-'+id)?.classList.toggle('open');}
-function toggleS(id){
-  ST[id]=NEXT[ST[id]||'todo'];
-  if(ST[id]==='done')DT[id]=new Date().toLocaleDateString('fr-FR');
-  buildZones();save();renderAll();
-  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[ST[id]]);
-}
-function saveN(id,v){NO[id]=v;save();}
-
-function updateDonePill(){
-  const done=Object.values(ST).filter(s=>s==='done').length;
-  const pct=Math.round(done/CSV_DATA.length*100);
-  const el=document.getElementById('done-pill');
-  el.textContent=`${done}/${CSV_DATA.length}`;
-  el.style.display='block';
-}
-
-// ══════════════════════════════
-//  MAP — simple et propre
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
+//  CARTE
+// ═══════════════════════════════════════════════
 function initMap(){
   if(map)return;
   map=L.map('mapbox',{zoomControl:false,attributionControl:false}).setView([HOME.lat,HOME.lon],13);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
-  // Home marker
   L.circleMarker([HOME.lat,HOME.lon],{radius:12,fillColor:'#6366F1',color:'#fff',weight:2.5,fillOpacity:1})
-    .bindPopup('<strong style="font-family:Geist Mono">🏠 Chez toi</strong><br><span style="color:#9994AA;font-size:11px">Mont-Saint-Aignan</span>')
+    .bindPopup('<strong>🏠 Chez toi</strong><br><span style="color:#9994AA;font-size:11px">Mont-Saint-Aignan</span>')
     .addTo(map);
 }
-
 function renderMap(){
-  initMap();
-  mapL.forEach(l=>l.remove());mapL=[];
-  if(routeLine){routeLine.remove();routeLine=null;}
+  initMap();mapL.forEach(l=>l.remove());mapL=[];
+  const todoStops=todayPlan.filter(r=>r.lat&&r.lon);
+  const doneOnPlan=new Set(todayPlan.filter(r=>ST[r._id]==='done').map(r=>r._id));
 
-  // Draw only the today route (not all zones — trop de bruit)
-  const stops=routeStops.filter(r=>r.lat&&r.lon);
-  if(stops.length>=2){
-    routeLine=L.polyline(
-      [[HOME.lat,HOME.lon],...stops.map(r=>[r.lat,r.lon])],
-      {color:'#6366F1',weight:3,opacity:0.7,dashArray:'8 6'}
-    ).addTo(map);
+  // Route line
+  if(todoStops.length>=2){
+    const pts=[[HOME.lat,HOME.lon],...todoStops.filter(r=>(ST[r._id]||'todo')==='todo').map(r=>[r.lat,r.lon])];
+    if(pts.length>1){
+      const l=L.polyline(pts,{color:'#6366F1',weight:3,opacity:0.7,dashArray:'8 6'}).addTo(map);
+      mapL.push(l);
+    }
   }
 
-  // All accessible markers (color by done/todo, no number clutter)
-  CSV_DATA.filter(r=>r.lat&&r.lon&&gt(r)<=maxT).forEach((r,i)=>{
+  // Background markers (tous les accessibles, grisés)
+  CSV_DATA.filter(r=>r.lat&&r.lon&&gt(r)<=maxT&&!todayPlan.find(p=>p._id===r._id)).forEach(r=>{
+    const m=L.circleMarker([r.lat,r.lon],{radius:4,fillColor:SCOL[r.secteur]||'#4A4658',color:'transparent',fillOpacity:0.25});
+    m.addTo(map);mapL.push(m);
+  });
+
+  // Plan stops (mis en avant)
+  todayPlan.forEach((r,i)=>{
+    if(!r.lat||!r.lon)return;
     const s=ST[r._id]||'todo';
-    const done=s==='done',nope=s==='nope';
-    const inRoute=routeStops.findIndex(x=>x._id===r._id);
-    const fc=done?'#34D399':nope?'#1F1F28':inRoute>=0?'#6366F1':SCOL[r.secteur]||'#4A4658';
-    const radius=inRoute>=0?9:6;
-    const m=L.circleMarker([r.lat,r.lon],{
-      radius,fillColor:fc,color:'#07070A',weight:1.5,
-      fillOpacity:nope?0.15:done?0.9:0.85
-    });
-    // Number only for route stops
-    if(inRoute>=0&&!done){
-      m.bindTooltip(String(inRoute+1),{permanent:true,direction:'center',className:'leaflet-tooltip',offset:[0,0]});
-    }
+    const done=s==='done';
+    const fc=done?'#34D399':'#6366F1';
+    const m=L.circleMarker([r.lat,r.lon],{radius:done?8:10,fillColor:fc,color:'#07070A',weight:2,fillOpacity:1});
+    if(!done)m.bindTooltip(String(i+1),{permanent:true,direction:'center',className:'leaflet-tooltip',offset:[0,0]});
     m.bindPopup(`
       <strong>${r.nom||'?'}</strong><br>
       <span style="color:#9994AA;font-size:11px">${r.adresse||''}</span><br><br>
       ${TI[transport]} ${gt(r)}min · ${r.dist_km}km${r.note?' · ⭐'+r.note:''}<br><br>
-      <button onclick="tsMap(${r._id})" style="background:${fc==='#1F1F28'?'#27273300':fc};color:${done?'#07070A':'#fff'};border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-bottom:6px;font-family:Geist,sans-serif;border:0.5px solid ${fc}">${LABEL[s]}</button>
-      <a href="${gpsu(r)}" target="_blank" style="display:block;text-align:center;font-size:11px;color:#818CF8;font-family:Geist Mono,monospace">Naviguer ${TI[transport]} →</a>
+      <button onclick="toggleS(${r._id})" style="background:${fc};color:${done?'#07070A':'#fff'};border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-bottom:6px;font-family:Geist,sans-serif">${LABEL[s]}</button>
+      <a href="${gpsu(r)}" target="_blank" style="display:block;text-align:center;font-size:11px;color:#818CF8">Naviguer ${TI[transport]} →</a>
     `);
     m.addTo(map);mapL.push(m);
   });
 
-  // Fit map to today's route
-  const pts=[[HOME.lat,HOME.lon],...stops.map(r=>[r.lat,r.lon])];
-  if(pts.length>1)map.fitBounds(pts,{padding:[60,60]});
-
-  renderMapPanel();
-}
-
-function renderMapPanel(){
-  const stops=routeStops;
-  const todoStops=stops.filter(r=>(ST[r._id]||'todo')==='todo');
-  document.getElementById('mt-title').textContent=`Itinéraire du jour · ${TI[transport]}`;
-  document.getElementById('mt-sub').textContent=`${todoStops.length} stops à faire · ${stops.length} au total`;
-
-  const el=document.getElementById('mt-body');
-  if(!stops.length){
-    el.innerHTML=`<div style="text-align:center;padding:14px;font-size:13px;color:var(--tx3)">Aucun établissement dans ce rayon</div>`;
-    return;
-  }
-  el.innerHTML=stops.map((r,i)=>{
+  // Panel
+  const todoN=todayPlan.filter(r=>(ST[r._id]||'todo')==='todo').length;
+  document.getElementById('mp-title').textContent=`Itinéraire du jour · ${TI[transport]}`;
+  document.getElementById('mp-sub').textContent=`${todoN} stops à faire · ${todayPlan.length} au total`;
+  const el=document.getElementById('mp-body');
+  if(!todayPlan.length){el.innerHTML=`<div style="text-align:center;padding:14px;font-size:13px;color:var(--tx3)">Configure ton budget sur l'onglet Aujourd'hui</div>`;return;}
+  el.innerHTML=todayPlan.map((r,i)=>{
     const s=ST[r._id]||'todo';
-    return`<div class="stop-row" onclick="tsMap(${r._id})">
-      <div class="stop-num ${s==='done'?'done':''}">${s==='done'?'✓':(i+1)}</div>
-      <div class="stop-info">
-        <div class="stop-name" style="${s==='done'?'text-decoration:line-through;opacity:.4':''}">${r.nom||'?'}</div>
-        <div class="stop-meta">${TI[transport]} ${gt(r)}min · ${r.dist_km}km · ${r.adresse?.split(',')[0]||''}</div>
+    return`<div class="map-stop-row" onclick="toggleS(${r._id})">
+      <div class="msn ${s==='done'?'done':''}">${s==='done'?'✓':(i+1)}</div>
+      <div class="ms-info">
+        <div class="ms-name" style="${s==='done'?'opacity:.4;text-decoration:line-through':''}">${r.nom||'?'}</div>
+        <div class="ms-meta">${TI[transport]} ${gt(r)}min · ${r.adresse?.split(',')[0]||''}</div>
       </div>
-      <button class="stop-stbtn ${CLS[s]}">${LABEL[s]}</button>
+      <button class="ms-btn ${CLS[s]}">${LABEL[s]}</button>
     </div>`;
   }).join('');
+
+  const allPts=[[HOME.lat,HOME.lon],...todayPlan.filter(r=>r.lat&&r.lon).map(r=>[r.lat,r.lon])];
+  if(allPts.length>1)map.fitBounds(allPts,{padding:[60,60]});
 }
 
-function launchRoute(){
-  const todo=routeStops.filter(r=>(ST[r._id]||'todo')==='todo'&&r.lat&&r.lon).slice(0,9);
-  if(!todo.length){toast('Tous les stops sont faits !');return;}
-  const coords=todo.map(r=>`${r.lat},${r.lon}`).join('/');
-  window.open(`https://www.google.com/maps/dir/${HOME.lat},${HOME.lon}/${coords}`,'_blank');
-}
-
-function tsMap(id){
-  ST[id]=NEXT[ST[id]||'todo'];
-  if(ST[id]==='done')DT[id]=new Date().toLocaleDateString('fr-FR');
-  buildZones();save();renderAll();
-  toast({todo:'📋 À faire',done:'✅ CV déposé !',relance:'🔔 Relancer',nope:'❌ Ignoré'}[ST[id]]);
-}
-
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 //  STATS
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 function renderStats(){
   const el=document.getElementById('stats');
-  const total=CSV_DATA.length;
-  const inR=CSV_DATA.filter(r=>gt(r)<=maxT).length;
+  const total=CSV_DATA.length,inR=CSV_DATA.filter(r=>gt(r)<=maxT).length;
   const done=Object.values(ST).filter(s=>s==='done').length;
   const rl=Object.values(ST).filter(s=>s==='relance').length;
   const pct=total?Math.round(done/total*100):0;
-  const secs=['food','retail','logis','livr','autre'];
-  const byDay={};
-  Object.entries(DT).forEach(([id,d])=>{if(ST[id]==='done')byDay[d]=(byDay[d]||0)+1;});
-  const top=CSV_DATA.filter(r=>gt(r)<=maxT&&(ST[r._id]||'todo')==='todo')
+  const byDay={};Object.entries(DT).forEach(([id,d])=>{if(ST[id]==='done')byDay[d]=(byDay[d]||0)+1;});
+  const top=CSV_DATA.filter(r=>gt(r)<=60&&(ST[r._id]||'todo')==='todo')
     .map(r=>({...r,score:Math.round((r.note||3)*15+Math.max(0,80-gt(r)))}))
     .sort((a,b)=>b.score-a.score).slice(0,5);
-
+  const secs=['food','retail','logis','livr','autre'];
   el.innerHTML=`
-    <div class="sg">
-      <div class="sbox"><div class="v">${total}</div><div class="l">Scrapés</div></div>
-      <div class="sbox"><div class="v" style="color:var(--ac2)">${inR}</div><div class="l">${TI[transport]} Accessibles</div></div>
-      <div class="sbox"><div class="v" style="color:var(--gn)">${done}</div><div class="l">CV Déposés</div></div>
-      <div class="sbox"><div class="v" style="color:var(--yw)">${rl}</div><div class="l">À Relancer</div></div>
-    </div>
-
-    <div class="infocard" style="margin-bottom:8px">
-      <div class="sec-h">Avancement global</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
-        <div style="flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden">
-          <div style="width:${pct}%;height:100%;background:var(--gn);border-radius:3px;transition:width .8s"></div>
-        </div>
-        <div style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;color:var(--gn)">${pct}%</div>
+  <div class="sg">
+    <div class="sbox"><div class="v">${total}</div><div class="l">Scrapés</div></div>
+    <div class="sbox"><div class="v" style="color:var(--ac2)">${inR}</div><div class="l">${TI[transport]} Accessibles</div></div>
+    <div class="sbox"><div class="v" style="color:var(--gn)">${done}</div><div class="l">CV Déposés</div></div>
+    <div class="sbox"><div class="v" style="color:var(--yw)">${rl}</div><div class="l">À Relancer</div></div>
+  </div>
+  <div class="icard">
+    <div class="icard-title">Avancement global</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="flex:1;height:6px;background:var(--s3);border-radius:3px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:var(--gn);border-radius:3px;transition:width .8s"></div>
       </div>
+      <div style="font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;color:var(--gn)">${pct}%</div>
     </div>
-
-    <div class="infocard" style="margin-bottom:8px">
-      <div class="sec-h">Accessibilité (max ${maxT}min)</div>
-      ${[{i:'🚶',l:'À pied',n:CSV_DATA.filter(r=>r.t_pied<=maxT).length,c:'var(--or)'},
-         {i:'🚴',l:'Vélo',n:CSV_DATA.filter(r=>r.t_velo<=maxT).length,c:'var(--gn)'},
-         {i:'🚌',l:'Bus',n:CSV_DATA.filter(r=>r.t_bus<=maxT).length,c:'var(--ac2)'}
-      ].map(m=>`<div class="pbar">
-        <div class="pbar-row"><span>${m.i} ${m.l}</span><span style="color:var(--tx3);font-family:'Geist Mono',monospace">${m.n}</span></div>
-        <div class="pbar-track"><div class="pbar-fill" style="width:${Math.round(m.n/total*100)}%;background:${m.c}"></div></div>
-      </div>`).join('')}
-    </div>
-
-    <div class="infocard" style="margin-bottom:8px">
-      <div class="sec-h">Par secteur</div>
-      ${secs.map(s=>{
-        const t=CSV_DATA.filter(r=>r.secteur===s).length;
-        const d=CSV_DATA.filter(r=>r.secteur===s&&ST[r._id]==='done').length;
-        if(!t)return'';
-        return`<div class="pbar">
-          <div class="pbar-row"><span>${{food:'🍔',retail:'🛒',logis:'📦',livr:'🚴',autre:'💼'}[s]} ${s}</span><span style="color:var(--tx3);font-family:'Geist Mono',monospace">${d}/${t}</span></div>
-          <div class="pbar-track"><div class="pbar-fill" style="width:${Math.round(d/t*100)}%;background:${SCOL[s]}"></div></div>
-        </div>`;
-      }).join('')}
-    </div>
-
-    ${Object.keys(byDay).length?`
-    <div class="infocard" style="margin-bottom:8px">
-      <div class="sec-h">Activité par jour</div>
-      ${Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,c])=>`
-        <div class="pbar">
-          <div class="pbar-row"><span style="font-family:'Geist Mono',monospace;font-size:11px">${d}</span><span style="color:var(--tx3)">+${c} CV</span></div>
-          <div class="pbar-track"><div class="pbar-fill" style="width:${Math.min(100,c*15)}%;background:var(--ac)"></div></div>
-        </div>`).join('')}
-    </div>`:''}
-
-    ${top.length?`
-    <div class="infocard" style="margin-bottom:8px">
-      <div class="sec-h">Top 5 à faire maintenant ${TI[transport]}</div>
-      ${top.map((r,i)=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--bd)">
-          <div style="font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:var(--ac2);width:16px">${i+1}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nom||'?'}</div>
-            <div style="font-size:10px;color:var(--tx3);font-family:'Geist Mono',monospace;margin-top:1px">${TI[transport]}${gt(r)}min · ${r.dist_km}km</div>
-          </div>
-          <button class="btn-go" style="padding:7px 10px;font-size:11px;box-shadow:none" onclick="window.open('${gpsu(r)}','_blank')">📍</button>
-        </div>`).join('')}
-    </div>`:''}
-
-    <div class="infocard">
-      <div class="sec-h" style="margin-bottom:10px">Données &amp; Reset</div>
-      <p style="font-size:12px;color:var(--tx3);line-height:1.6;margin-bottom:10px">
-        <strong style="color:var(--tx)">1163 établissements</strong> scrapés autour de Rouen.<br>
-        🚶 5 km/h · 🚴 15 km/h · 🚌 20 km/h + 8min<br>
-        Zones créées par clustering 500m.
-      </p>
-      <button onclick="if(confirm('Tout remettre à zéro ?')){resetAll()}" style="width:100%;background:var(--rdbg);color:var(--rd);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif">
-        🗑 Réinitialiser tous les statuts
-      </button>
-    </div>
-    <div class="pb"></div>
-  `;
+  </div>
+  <div class="icard">
+    <div class="icard-title">Accessibilité (max ${maxT}min)</div>
+    ${[{i:'🚶',l:'Pied',n:CSV_DATA.filter(r=>r.t_pied<=maxT).length,c:'var(--or)'},
+       {i:'🚴',l:'Vélo',n:CSV_DATA.filter(r=>r.t_velo<=maxT).length,c:'var(--gn)'},
+       {i:'🚌',l:'Bus',n:CSV_DATA.filter(r=>r.t_bus<=maxT).length,c:'var(--ac2)'}
+    ].map(m=>`<div class="pbar"><div class="pbar-row"><span>${m.i} ${m.l}</span><span style="color:var(--tx3);font-family:'Geist Mono',monospace">${m.n}</span></div><div class="pbar-track"><div class="pbar-fill" style="width:${Math.round(m.n/total*100)}%;background:${m.c}"></div></div></div>`).join('')}
+  </div>
+  <div class="icard">
+    <div class="icard-title">Par secteur</div>
+    ${secs.map(s=>{const t=CSV_DATA.filter(r=>r.secteur===s).length,d=CSV_DATA.filter(r=>r.secteur===s&&ST[r._id]==='done').length;if(!t)return'';return`<div class="pbar"><div class="pbar-row"><span>${SLBL[s]}</span><span style="color:var(--tx3);font-family:'Geist Mono',monospace">${d}/${t}</span></div><div class="pbar-track"><div class="pbar-fill" style="width:${Math.round(d/t*100)}%;background:${SCOL[s]}"></div></div></div>`;}).join('')}
+  </div>
+  ${Object.keys(byDay).length?`<div class="icard"><div class="icard-title">Activité par jour</div>${Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,c])=>`<div class="pbar"><div class="pbar-row"><span style="font-family:'Geist Mono',monospace;font-size:11px">${d}</span><span style="color:var(--tx3)">+${c} CV</span></div><div class="pbar-track"><div class="pbar-fill" style="width:${Math.min(100,c*15)}%;background:var(--ac)"></div></div></div>`).join('')}</div>`:''}
+  ${top.length?`<div class="icard"><div class="icard-title">Top 5 priorités 🚴</div>${top.map((r,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--bd)"><div style="font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:var(--ac2);width:16px">${i+1}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.nom||'?'}</div><div style="font-size:10px;color:var(--tx3);font-family:'Geist Mono',monospace">${TI[transport]}${gt(r)}min · ${r.dist_km}km · ⭐${r.note||'?'}</div></div><button class="btn-nav" style="padding:7px 10px;font-size:11px;box-shadow:none" onclick="window.open('${gpsu(r)}','_blank')">📍</button></div>`).join('')}</div>`:''}
+  <div class="icard">
+    <div class="icard-title">Reset</div>
+    <button onclick="if(confirm('Tout remettre à zéro ?')){resetAll()}" style="width:100%;background:var(--rdbg);color:var(--rd);border:0.5px solid rgba(248,113,113,0.25);border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif">
+      🗑 Réinitialiser tous les statuts
+    </button>
+  </div>
+  <div class="pb"></div>`;
 }
 
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
+//  PROGRESS RING
+// ═══════════════════════════════════════════════
+function updateProgress(){
+  const total=CSV_DATA.length,done=Object.values(ST).filter(s=>s==='done').length;
+  const pct=Math.round(done/total*100),C=50.3,off=C-pct/100*C;
+  const rf=document.getElementById('rf');if(rf)rf.style.strokeDashoffset=off;
+  const rp=document.getElementById('rp');if(rp)rp.textContent=pct+'%';
+  const pt=document.getElementById('pp-txt');if(pt)pt.textContent=`${done}/${total}`;
+}
+
+// ═══════════════════════════════════════════════
 //  TABS
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 function goTab(t){
   tab=t;
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
@@ -756,24 +742,35 @@ function goTab(t){
   document.querySelectorAll('nav button').forEach(b=>{if((b.getAttribute('onclick')||'').includes("'"+t+"'"))b.classList.add('on');});
   if(t==='map')renderMap();
   if(t==='stats')renderStats();
+  if(t==='liste')renderListe();
 }
 
 function resetAll(){
   CSV_DATA.forEach(r=>{ST[r._id]='todo';NO[r._id]='';DT[r._id]='';});
-  buildZones();save();renderAll();toast('🔄 Reset effectué');
+  buildPlan();save();renderAll();toast('🔄 Reset effectué');
 }
-function renderAll(){renderListe();if(tab==='map')renderMap();if(tab==='stats')renderStats();}
 
-// ══════════════════════════════
+function renderAll(){
+  buildPlan();
+  renderToday();
+  if(tab==='liste')renderListe();
+  if(tab==='map')renderMap();
+  if(tab==='stats')renderStats();
+  updateProgress();
+}
+
+// ═══════════════════════════════════════════════
 //  INIT
-// ══════════════════════════════
+// ═══════════════════════════════════════════════
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 loadSaved();
 document.querySelectorAll('.tp').forEach(b=>b.classList.remove('on'));
 document.getElementById('tt-'+transport).classList.add('on');
 document.getElementById('tslider').value=maxT;
 document.getElementById('tval').textContent=maxT+' min';
-buildZones();
+document.getElementById('budget').value=budget;
+document.getElementById('bval').textContent=fmtBudget(budget);
+buildPlan();
 renderAll();
 </script>
 </body>

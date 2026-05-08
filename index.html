@@ -248,7 +248,7 @@ function tsp(pts){if(pts.length<=1)return pts;const uv=[...pts];const r=[];let c
 function cd(cl){return cl.members.filter(r=>STATUTS[r._id]==='done').length;}
 function sc(){return clusters.sort((a,b)=>parseFloat(a.distHome)-parseFloat(b.distHome));}
 
-function gpsu(r){if(r.url_maps&&r.url_maps.startsWith('http'))return r.url_maps;if(r.lat&&r.lon)return`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=${transport==='bus'?'transit':transport==='velo'?'bicycling':'walking'}`;return`https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||'')`;}
+function gpsu(r){if(r.url_maps&&r.url_maps.startsWith('http'))return r.url_maps;if(r.lat&&r.lon)return`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=${transport==='bus'?'transit':transport==='velo'?'bicycling':'walking'}`;return`https://maps.google.com/?q=${encodeURIComponent((r.nom||'')+' '+(r.adresse||''))}`;}
 
 function setF(f,btn){activeFilter=f;document.querySelectorAll('.fp').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderListe();}
 function getFiltered(){
